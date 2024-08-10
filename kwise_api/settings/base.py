@@ -18,10 +18,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_extensions',
+    'django_cleanup.apps.CleanupConfig',
     
     # my apps
+    'authentication.apps.AuthenticationConfig',
+    'base.apps.BaseConfig',
     'users.apps.UsersConfig',
-    'products.apps.ProductsConfig'
+    'products.apps.ProductsConfig',
 ]
 
 MIDDLEWARE = [
@@ -35,7 +39,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'kwise_api.urls'
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "authentication.User"
 
 TEMPLATES = [
     {
@@ -97,14 +101,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'authentication.backends.EmailOrPhoneBackend',
+]
+
 
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
