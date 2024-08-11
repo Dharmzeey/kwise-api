@@ -40,7 +40,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-  id = models.UUIDField(editable=False, default=uuid.uuid4, unique=True, primary_key=True)
+  uuid = models.UUIDField(editable=False, default=uuid.uuid4)
   password = models.CharField(max_length=128)
   phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')], unique=True)
   email = models.EmailField(max_length=100 ,unique=True)
