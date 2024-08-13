@@ -2,6 +2,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from authentication.models import User
 from base.models import State, LGA
+from products.models import Product
 
 
 class UserInfo(models.Model):
@@ -26,3 +27,37 @@ class UserAddress(models.Model):
   address = models.TextField()
   def __str__(self):
     return f"{self.user} - {self.address}"
+
+
+class PendingOrder(models.Model):
+  user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_pending_order")
+  # Delivery Info
+  name = models.CharField(max_length=100)
+  phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')], unique=True)
+  state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name="state_pending_order", null=True)
+  city_town = models.CharField(max_length=30)
+  lga = models.ForeignKey(LGA, on_delete=models.SET_NULL, related_name="lga_pending_order", null=True)
+  prominent_motor_park = models.CharField(max_length=50, null=True, blank=True)
+  landmark_signatory_place = models.CharField(max_length=50, null=True, blank=True)
+  address = models.TextField()
+  # Product Info
+  product = models.ForeignKey(Product, on_delete=models.SET_NULL, related_name="product_pending_order", null=True)
+  quantity = models.IntegerField()
+  product_name = models.CharField(max_length=200)
+  shipped = models.BooleanField(default=False)
+  estimated_delivery_date = models.DateTimeField()
+  created_at = models.DateTimeField(auto_now_add=True)
+  def __str__(self):
+    return f"{self.user} - {self.product.name}"
+  
+
+class CompletedOrder(models.Model):
+  user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_completed_order")
+  product = models.ForeignKey(Product, on_delete=models.SET_NULL, related_name="product_completed_order", null=True)
+  product_name = models.CharField(max_length=200)
+  quantity = models.IntegerField()
+  delivery_date = models.DateTimeField()
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return f"{self.user} - {self.product_name}"

@@ -4,11 +4,11 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import DestroyAPIView, RetrieveAPIView
+from rest_framework.generics import DestroyAPIView, ListAPIView
 
 
 from . import serializers as CustomSerializers
-from .models import UserInfo, UserAddress, State
+from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder
 from utils.error_handler import render_errors
 
 
@@ -138,3 +138,23 @@ class UpdateUserAddressView(APIView):
     data = {"errors": render_errors(serializer.errors)}
     return Response(data, status=status.HTTP_400_BAD_REQUEST)
 update_user_address = UpdateUserAddressView.as_view()
+
+
+class PendingOrdersViews(ListAPIView):
+  serializer_class = CustomSerializers.PendingOrderSerializer
+  permission_classes = [IsAuthenticated]
+  
+  def get_queryset(self):
+    qs = PendingOrder.objects.filter(id=self.request.user.id)
+    return qs
+pending_orders = PendingOrdersViews.as_view()
+
+
+class CompletedOrdersViews(ListAPIView):
+  serializer_class = CustomSerializers.CompletedOrderSerializer
+  permission_classes = [IsAuthenticated]
+  
+  def get_queryset(self):
+    qs = CompletedOrder.objects.filter(id=self.request.user.id)
+    return qs
+completed_orders = CompletedOrdersViews.as_view()

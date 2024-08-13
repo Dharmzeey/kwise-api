@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserInfo, UserAddress
+from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder
 
   
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -23,3 +23,30 @@ class UserAddressSerializer(serializers.ModelSerializer):
     representation['state'] = instance.state.name
     representation['lga'] = instance.lga.name
     return representation
+  
+
+class PendingOrderSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    model = PendingOrder
+    fields = "__all__"
+  def to_representation(self, instance):
+    representation = super().to_representation(instance)
+    representation['state'] = instance.state.name
+    representation['lga'] = instance.lga.name
+    return representation
+  
+    
+class CompletedOrderSerializer(serializers.ModelSerializer):
+  # quantity = serializers.PrimaryKeyRelatedField(depth=1)
+  
+  class Meta:
+    model = CompletedOrder
+    fields = "__all__"
+  def to_representation(self, instance):
+    representation = super().to_representation(instance)
+    representation['state'] = instance.state.name
+    representation['lga'] = instance.lga.name
+    return representation
+    
+    
