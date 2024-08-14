@@ -29,12 +29,12 @@ product_list = ProductListView.as_view()
 
 
 class ProductSearchView(ListAPIView):
-  serializer_class = customSerializers.ProductSerializer
-  
-  def get_queryset(self):
-    q = self.request.query_params.get("q")
-    qs = Product.objects.filter(name__icontains=q)
-    return qs
+	serializer_class = customSerializers.ProductSerializer
+
+	def get_queryset(self):
+		q = self.request.query_params.get("q")
+		qs = Product.objects.filter(name__icontains=q)
+		return qs
   
 product_search = ProductSearchView.as_view()
 
@@ -68,5 +68,3 @@ class ProductDetailView(RetrieveAPIView):
     uuid = self.kwargs.get('pk')
     return Product.objects.get(uuid=uuid)
 product_detail = ProductDetailView.as_view()
-
-

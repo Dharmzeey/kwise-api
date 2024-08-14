@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # my apps
     'authentication.apps.AuthenticationConfig',
     'base.apps.BaseConfig',
+    'cart.apps.CartConfig',
     'users.apps.UsersConfig',
     'products.apps.ProductsConfig',
 ]
@@ -119,3 +120,4 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+CART_SESSION_ID = 'cart'

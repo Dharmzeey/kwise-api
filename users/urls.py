@@ -12,7 +12,6 @@ urlpatterns = [
   path('address/retrieve/', views.retrieve_user_address, name="retrieve_user_address"),
   path('address/update/', views.update_user_address, name="update_user_address"),
   
-  
   path('orders/pending/', views.pending_orders, name="pending_orders"),
   path('orders/completed/', views.completed_orders, name="completed_orders"),
 ]
