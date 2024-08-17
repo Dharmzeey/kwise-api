@@ -23,9 +23,10 @@ class Cart:
 
     def add(self, product_uuid):
         if product_uuid not in self.cart:
+            product = Product.objects.get(uuid=product_uuid)
             self.cart[product_uuid] = {
                 "quantity": 1,
-                "price": 1 # just for initialization will be updated later in the __iter__()
+                "price":  float(product.price)# just for initialization will be updated later in the __iter__()
             }
         self.save()
         
@@ -44,8 +45,9 @@ class Cart:
         product = Product.objects.get(uuid=product_uuid)
         if  (product_uuid in self.cart) and (product.stock > int(quantity) + self.cart[product_uuid]["quantity"]):
             self.cart[product_uuid]["quantity"] += int(quantity)
-        else:
+        elif  (product_uuid in self.cart):
             self.cart[product_uuid]["quantity"] = product.stock
+        
         self.save()
 
     def remove(self, product_uuid):
@@ -58,19 +60,16 @@ class Cart:
         Loop through cart items and fetch the products from the database
         """
         product_uuids = self.cart.keys()
-        print(product_uuids)
         products = Product.objects.filter(uuid__in=product_uuids)
-        print(products)
         cart = self.cart.copy()
         for product in products:
             cart_item = cart[str(product.uuid)]
             cart_item["product"] = ProductSerializer(product).data
             cart_item["price"] = product.price #add the price k,v to the dict
             cart_item["total_price"] = product.price * cart_item["quantity"] #add the total_price k,v to the dict
-            
+
             self.cart[str(product.uuid)]["price"] = product.price #updates the price per product in the cart field of this class instance
             yield cart_item
-
 
     def __len__(self):
         """
@@ -83,4 +82,33 @@ class Cart:
 
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
+        self.save()
+        
+    
+    def include_address(self, use_default, serializer=None, user_phone=None, user_info=None, user_address=None):
+        if use_default:           
+             address_data = {
+                "name" : f"{user_info.first_name} {user_info.last_name}",
+                "phone_number" : user_phone,
+                "state" : user_address.state.name,
+                "city_town" : user_address.city_town,
+                "lga" : user_address.lga.name,
+                "prominent_motor_park" : user_address.prominent_motor_park,
+                "landmark_signatory_place" : user_address.landmark_signatory_place,
+                "address" : user_address.address
+             } 
+             print(address_data)
+        else:
+            address_data = {
+                "name" : serializer["name"],
+                "phone_number" : serializer["phone_number"],
+                "state" : serializer["state"],
+                "city_town" : serializer["city_town"],
+                "lga" : serializer["lga"],
+                "prominent_motor_park" : serializer.get("prominent_motor_park", None),
+                "landmark_signatory_place" : serializer.get("landmark_signatory_place", None),
+                "address" : serializer["address"],
+            }           
+        self.cart['address_info'] = address_data
+        print(self.cart)
         self.save()

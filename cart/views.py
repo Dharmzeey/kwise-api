@@ -1,13 +1,23 @@
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
 from products.models import Product
+from utilities.error_handler import render_errors
+from utilities.utils import check_lga_and_state_match
+
 from .service import Cart
+from .serializers import OrderAddressSerializer
 
 
 class GetCartView(APIView):
     
     def get(self, request, format=None):
+        # print(request.session.get(settings.CART_SESSION_ID))
         cart = Cart(request)
 
         return Response(
@@ -26,6 +36,7 @@ class ModifyCartView(APIView):
     """
 
     def post(self, request, **kwargs):
+        print(request.session.get(settings.CART_SESSION_ID))
         product_uuid = request.data["product_id"]
         action = request.data.get("action")
         cart = Cart(request)
@@ -62,9 +73,61 @@ class ModifyCartView(APIView):
 modify_cart = ModifyCartView.as_view()
 
 
-class CheckOutView(APIView):
-  def post(self, request):
-    #   RE CALCULATE EVERYTHING AGAIN
-    data = {"message": "You order has been completed successfully"}
-    return Response(data, status=status.HTTP_200_OK)
-check_out = CheckOutView.as_view()
+class CheckoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        print(request.session.get(settings.CART_SESSION_ID))
+        cart = Cart(request)
+        cart_list = list(cart.__iter__())
+        grand_total = cart.get_total_price()
+        data = {}
+        data_list = []
+        for i in cart_list:
+            data_list.append(
+                {
+                    "cart_item_name": i['product']['name'],
+                    "cart_item_quantity": i['quantity'],
+                    "cart_item_price": i['price'] * i['quantity'],
+                }
+            )
+        data.update(
+            {
+                "item_list": data_list,
+                "grand_total": grand_total
+            }
+        )
+        data = {
+            "data": data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+checkout = CheckoutView.as_view()
+
+
+class OrderSummary(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderAddressSerializer
+    def post(self, request):
+        cart = Cart(request)
+        serializer = self.serializer_class(data=request.data)
+        use_default = request.data.get("use_default", True)
+        if use_default:
+            try:                    
+                user_phone = request.user.phone_number
+                user_info = request.user.user_info
+                user_address = request.user.user_address
+                cart.include_address(True, user_phone=user_phone, user_info=user_info, user_address=user_address)
+                data = {"data": "data for the paystack front end shiiiii"}
+                return Response(data, status=status.HTTP_200_OK)
+            except ObjectDoesNotExist:
+                data = {"message": "User should fill their user and address information"}
+                return Response(data, status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            validated_response = check_lga_and_state_match(serializer)
+            if validated_response:
+                return validated_response
+            cart.include_address(False, serializer=serializer.data)
+            data = {"data": "data for the paystack front end shiiiii"}
+            return Response(data, status=status.HTTP_200_OK)
+        data = {"error": render_errors(serializer.errors)}
+        return Response(data, status=status.HTTP_302_FOUND)
+order_summary = OrderSummary.as_view()

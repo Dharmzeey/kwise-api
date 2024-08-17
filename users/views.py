@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +10,8 @@ from rest_framework.generics import DestroyAPIView, ListAPIView
 
 from . import serializers as CustomSerializers
 from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder
-from utils.error_handler import render_errors
+from utilities.error_handler import render_errors
+from utilities.utils import check_lga_and_state_match
 
 
 class CreateUserInfoView(APIView):
@@ -37,7 +39,11 @@ class RetrieveUserInfoView(APIView):
   serializer_class = CustomSerializers.UserInfoSerializer
   permission_classes = [IsAuthenticated]
   def get(self, request):
-    user = request.user.user_info
+    try:
+      user = request.user.user_info
+    except ObjectDoesNotExist:
+      data = {"message": "User should is yet to fill their personal information"}
+      return Response(data, status=status.HTTP_404_NOT_FOUND)    
     serializer = self.serializer_class(instance=user)
     data = {"message": "user details", "data": serializer.data}
     return Response(data, status=status.HTTP_200_OK)
@@ -75,14 +81,6 @@ class DeleteUserView(DestroyAPIView):
 delete_user = DeleteUserView.as_view()
 
 
-def _check_lga_and_state_match(serializer):
-  lga = serializer.validated_data.get("lga", None)
-  state = serializer.validated_data.get("state", None)
-  if state.id != lga.state.id:
-    data = {"error": "The LGA passed does not belong to the state being sent"}
-    return Response(data, status=status.HTTP_400_BAD_REQUEST)
-  return None
-
 class CreateUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
   permission_classes = [IsAuthenticated]
@@ -92,7 +90,7 @@ class CreateUserAddressView(APIView):
     if not request.user.email_verified:
       return Response({"error": "Email not verified"}, status=status.HTTP_401_UNAUTHORIZED)
     if serializer.is_valid():
-      validation_response = _check_lga_and_state_match(serializer)     
+      validation_response = check_lga_and_state_match(serializer) 
       if validation_response:
         return validation_response
       try:
@@ -111,7 +109,11 @@ class RetrieveUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
   permission_classes = [IsAuthenticated]
   def get(self, request):
-    user = request.user.user_address
+    try:
+      user = request.user.user_address
+    except ObjectDoesNotExist:
+      data = {"message": "User should is yet to fill their address information"}
+      return Response(data, status=status.HTTP_404_NOT_FOUND)
     serializer = self.serializer_class(instance=user)
     data = {"message": "user address information", "data": serializer.data}
     return Response(data, status=status.HTTP_200_OK)
@@ -129,7 +131,7 @@ class UpdateUserAddressView(APIView):
       return Response({"error": "Add your user Address"}, status=status.HTTP_404_NOT_FOUND)
     serializer = self.serializer_class(instance=user, data=request.data, partial=True)
     if serializer.is_valid():
-      validation_response = _check_lga_and_state_match(serializer)     
+      validation_response = check_lga_and_state_match(serializer)     
       if validation_response:
         return validation_response
       serializer.save()

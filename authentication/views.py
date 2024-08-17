@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, EmailVerification, PhoneVerification, ForgotPassword
 from authentication.backends import EmailOrPhoneBackend
 
-from utils.error_handler import render_errors
+from utilities.error_handler import render_errors
 
 
 from . import serializers as CustomSerializers

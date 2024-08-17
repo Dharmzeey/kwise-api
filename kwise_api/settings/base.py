@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'base.apps.BaseConfig',
     'cart.apps.CartConfig',
     'users.apps.UsersConfig',
+    'payment.apps.PaymentConfig',
     'products.apps.ProductsConfig',
 ]
 
