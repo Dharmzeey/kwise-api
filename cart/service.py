@@ -9,14 +9,18 @@ from products.models import Product
 class Cart:
     def __init__(self, request):
         """
-        initialize the cart
+        initialize the cart and also the address
         """
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
+        address = self.session.get(settings.ADDRESS_SESSION_ID)
         if not cart:
             # save an empty cart in session
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
+        if not address:
+            address = self.session[settings.ADDRESS_SESSION_ID] = {}
+        self.address = address
 
     def save(self):
         self.session.modified = True
@@ -60,15 +64,16 @@ class Cart:
         Loop through cart items and fetch the products from the database
         """
         product_uuids = self.cart.keys()
+        print(product_uuids)
         products = Product.objects.filter(uuid__in=product_uuids)
         cart = self.cart.copy()
         for product in products:
             cart_item = cart[str(product.uuid)]
             cart_item["product"] = ProductSerializer(product).data
-            cart_item["price"] = product.price #add the price k,v to the dict
-            cart_item["total_price"] = product.price * cart_item["quantity"] #add the total_price k,v to the dict
+            cart_item["price"] = float(product.price) #add the price k,v to the dict
+            cart_item["total_price"] = float(product.price) * cart_item["quantity"] #add the total_price k,v to the dict
 
-            self.cart[str(product.uuid)]["price"] = product.price #updates the price per product in the cart field of this class instance
+            self.cart[str(product.uuid)]["price"] = float(product.price) #updates the price per product in the cart field of this class instance
             yield cart_item
 
     def __len__(self):
@@ -97,7 +102,6 @@ class Cart:
                 "landmark_signatory_place" : user_address.landmark_signatory_place,
                 "address" : user_address.address
              } 
-             print(address_data)
         else:
             address_data = {
                 "name" : serializer["name"],
@@ -109,6 +113,6 @@ class Cart:
                 "landmark_signatory_place" : serializer.get("landmark_signatory_place", None),
                 "address" : serializer["address"],
             }           
-        self.cart['address_info'] = address_data
-        print(self.cart)
+        self.address['address_info'] = address_data
         self.save()
+        return address_data

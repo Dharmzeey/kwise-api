@@ -5,18 +5,19 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import DestroyAPIView, ListAPIView
+from rest_framework.generics import DestroyAPIView, ListAPIView, ListCreateAPIView
 
-
-from . import serializers as CustomSerializers
-from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder
+from authentication.permissions import IsUserVerified
 from utilities.error_handler import render_errors
 from utilities.utils import check_lga_and_state_match
+
+from . import serializers as CustomSerializers
+from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder, Favorite
 
 
 class CreateUserInfoView(APIView):
   serializer_class = CustomSerializers.UserInfoSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   
   def post(self, request):
     serializer = self.serializer_class(data=request.data)
@@ -37,7 +38,7 @@ add_user_info = CreateUserInfoView.as_view()
 
 class RetrieveUserInfoView(APIView):
   serializer_class = CustomSerializers.UserInfoSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   def get(self, request):
     try:
       user = request.user.user_info
@@ -52,7 +53,7 @@ retrieve_user_info = RetrieveUserInfoView.as_view()
 
 class UpdateUserInfoView(APIView):
   serializer_class = CustomSerializers.UserInfoSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   
   def patch(self, request):
     try:
@@ -72,7 +73,7 @@ update_user_info = UpdateUserInfoView.as_view()
 
 class DeleteUserView(DestroyAPIView):
   serializer_class = CustomSerializers.UserInfoSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   def get_object(self):
     user = self.request.user
     if not user.is_authenticated:
@@ -83,7 +84,7 @@ delete_user = DeleteUserView.as_view()
 
 class CreateUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
 
   def post(self, request):
     serializer = self.serializer_class(data=request.data)
@@ -107,7 +108,7 @@ create_user_address = CreateUserAddressView.as_view()
 
 class RetrieveUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   def get(self, request):
     try:
       user = request.user.user_address
@@ -122,7 +123,7 @@ retrieve_user_address = RetrieveUserAddressView.as_view()
 
 class UpdateUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   
   def patch(self, request):
     try:
@@ -144,7 +145,7 @@ update_user_address = UpdateUserAddressView.as_view()
 
 class PendingOrdersViews(ListAPIView):
   serializer_class = CustomSerializers.PendingOrderSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   
   def get_queryset(self):
     qs = PendingOrder.objects.filter(id=self.request.user.id)
@@ -154,9 +155,39 @@ pending_orders = PendingOrdersViews.as_view()
 
 class CompletedOrdersViews(ListAPIView):
   serializer_class = CustomSerializers.CompletedOrderSerializer
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAuthenticated, IsUserVerified]
   
   def get_queryset(self):
     qs = CompletedOrder.objects.filter(id=self.request.user.id)
     return qs
 completed_orders = CompletedOrdersViews.as_view()
+
+
+class FavoriteListCreateView(ListCreateAPIView):
+    serializer_class = CustomSerializers.FavoriteSerializer
+    permission_classes = [IsAuthenticated, IsUserVerified]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+create_favourite_list = FavoriteListCreateView.as_view()
+
+
+class FavoriteDeleteView(DestroyAPIView):
+    serializer_class = CustomSerializers.FavoriteSerializer
+    permission_classes = [IsAuthenticated, IsUserVerified]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        product_uuid = self.kwargs.get('product_id')
+        
+        favorite = self.get_queryset().filter(product__uuid=product_uuid).first()
+        if favorite:
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Favorite not found."}, status=status.HTTP_404_NOT_FOUND)
+delete_favourite_list = FavoriteDeleteView.as_view()

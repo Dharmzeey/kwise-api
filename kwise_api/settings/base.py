@@ -122,3 +122,4 @@ REST_FRAMEWORK = {
 }
 
 CART_SESSION_ID = 'cart'
+ADDRESS_SESSION_ID = 'address'

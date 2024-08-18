@@ -1,6 +1,8 @@
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from . import serializers as customSerializers
 from .models import Product, Category, Brand
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ProductCategoryView(ListAPIView):
@@ -23,7 +25,15 @@ product_brands = ProductBrandView.as_view()
 
 class ProductListView(ListAPIView):
   serializer_class = customSerializers.ProductSerializer
-  queryset = Product.objects.all()
+  # queryset = Product.objects.all()
+  
+  def get(self, request):
+    prodcts = Product.objects.all()
+    serializer = self.serializer_class(instance=prodcts, many=True)
+    print(serializer.data)
+    return Response(
+      {"data": serializer.data},status=status.HTTP_200_OK
+    )
   
 product_list = ProductListView.as_view()
 

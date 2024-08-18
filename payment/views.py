@@ -1,36 +1,48 @@
-from django.shortcuts import render, redirect
-from .models import Payment, UserWallet
 from django.conf import settings
+from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
-def initiate_payment(request):
-    if request.method == "POST":
-        amount = request.POST['amount']
-        email = request.POST['email']
+from authentication.permissions import IsUserVerified
+from cart.service import Cart
 
+from .models import Payment
+from .serializers import PaymentSerializer
+
+
+class InitiatePayment(APIView):
+    permission_classes = [IsAuthenticated, IsUserVerified]
+    def post(self, request):
         pk = settings.PAYSTACK_PUBLIC_KEY
-
-        payment = Payment.objects.create(amount=amount, email=email, user=request.user)
+        cart = Cart(request)
+        payment = Payment.objects.create(amount=cart.get_total_price(), email=request.user.email, user=request.user)
         payment.save()
-
-        context = {
-            'payment': payment,
+        serializer = PaymentSerializer(payment)
+        data = {
+            'payment': serializer.data,
             'field_values': request.POST,
             'paystack_pub_key': pk,
             'amount_value': payment.amount_value(),
         }
-        return render(request, 'make_payment.html', context)
+        return Response(data, status=status.HTTP_200_OK)
 
-    return render(request, 'payment.html')
+initiate_payment = InitiatePayment.as_view()
 
 
-def verify_payment(request, ref):
-    payment = Payment.objects.get(ref=ref)
-    verified = payment.verify_payment()
+class VerifyPayment(APIView):
+    permission_classes = [IsAuthenticated, IsUserVerified]
+    def get(self, request, ref):
+        # this will be async called when the paystack finishes
+        payment = Payment.objects.get(ref=ref)
+        verified = payment.verify_payment()
 
-    if verified:
-        user_wallet = UserWallet.objects.get(user=request.user)
-        user_wallet.balance += payment.amount
-        user_wallet.save()
-        print(request.user.username, " funded wallet successfully")
+        if verified:
+            # fetch the current session and then establish the orders for all product #pending order gets created here
+            print(request.user.username, " funded wallet successfully")
+            return render(request, "success.html")
         return render(request, "success.html")
-    return render(request, "success.html")
+
+
+verify_payment = VerifyPayment.as_view()

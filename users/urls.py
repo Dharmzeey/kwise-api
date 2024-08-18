@@ -14,5 +14,7 @@ urlpatterns = [
   
   path('orders/pending/', views.pending_orders, name="pending_orders"),
   path('orders/completed/', views.completed_orders, name="completed_orders"),
+  
+  path('favourites/', views.create_favourite_list, name='create_favourite_list'),
+  path('favourites/<str:product_id>/', views.delete_favourite_list, name='delete_favourite_list'),
 ]
-

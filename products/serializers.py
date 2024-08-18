@@ -37,4 +37,4 @@ class ProductSerializer(serializers.ModelSerializer):
   
   # This below will take the uuid from the database and render it as ID (the DB has id as pk but uuid as the external exposed id for querying sake alone)
   def get_id(self, obj):
-    return obj.uuid
+    return str(obj.uuid)
