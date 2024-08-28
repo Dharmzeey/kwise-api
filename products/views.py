@@ -66,6 +66,22 @@ class RecentlyViewedView(ListAPIView):
 recently_viewed = RecentlyViewedView.as_view()
 
 
+class SimilarProductsView(ListAPIView):
+    serializer_class = customSerializers.ProductSerializer
+    def get_queryset(self):
+        product_uuid = self.request.query_params.get("product_id")
+        if product_uuid:
+            try:
+                product = Product.objects.get(uuid=product_uuid)
+                similar_products = Product.objects.filter(brand=product.brand).order_by("?")[:7]
+            except Product.DoesNotExist:
+                similar_products = Product.objects.none()
+        else:
+            similar_products = Product.objects.none()
+        return similar_products
+similar_products = SimilarProductsView.as_view()
+
+
 class ProductDetailView(RetrieveAPIView):
 	queryset=Product.objects.all()
 	serializer_class = customSerializers.ProductSerializer

@@ -10,6 +10,7 @@ urlpatterns = [
   path("search/", views.product_search, name="product_search"),
   path("category/<str:category_name>/", views.products_by_category, name="products_by_category"),
   path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
+  path("similar-products/", views.similar_products, name="similar_products"),
   path("<str:pk>/", views.product_detail, name="product_detail"),
   
 ]
