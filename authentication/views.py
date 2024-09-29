@@ -20,6 +20,17 @@ from utilities.error_handler import render_errors
 
 from . import serializers as CustomSerializers
 
+def handle_send_email(user):
+  pin = str(random.randint(100000, 999999))
+  send_mail(
+    'Kwiseworld Email Verification',
+    f'Hello 👋.\nYour verification PIN is {pin}. \nIt will expire in 10 minutes',
+    settings.DEFAULT_FROM_EMAIL,
+    [user.email],
+    fail_silently=False,
+    )
+  EmailVerification.objects.create(user=user, email=user.email, email_verification_pin=pin)
+  
 
 class UserCreateView(APIView):
   serializer_class = CustomSerializers.UserSerializer
@@ -30,13 +41,16 @@ class UserCreateView(APIView):
         user = serializer.save()
         tokens = TokenObtainPairSerializer().validate(request.data)
         access_token = tokens['access']
-        # refresh_token = tokens['refresh']
-        data = {
-          'token': access_token,
-          # 'refresh_token': refresh_token,
-        }
+        refresh_token = tokens['refresh']
         login(request, user, backend="authentication.backends.EmailOrPhoneBackend")
+        user_serializer = CustomSerializers.UserSerializer(instance=user)
+        data = {
+          'access_token': access_token,
+          'refresh_token': refresh_token,
+          'data': user_serializer.data
+        }
         # login(request, user)
+        handle_send_email(user) # This sends code to user after registering
         return Response(data, status=status.HTTP_201_CREATED)
       except IntegrityError:
         return Response({'error': 'User with this email or Phone Number already exists.'}, status=status.HTTP_409_CONFLICT)
@@ -65,7 +79,7 @@ class UserLoginView(APIView):
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)  
         data = {
-          "token": access_token
+          "access_token": access_token
         }
         return Response(data, status=status.HTTP_200_OK)
       return Response({"error": "Invalid Credentials",}, status=status.HTTP_401_UNAUTHORIZED)
@@ -84,16 +98,8 @@ class SendEmailVerificationView(APIView):
       EmailVerification.objects.get(user=user)
       return Response({"message": "Email Verification already sent"}, status=status.HTTP_409_CONFLICT)
     except EmailVerification.DoesNotExist:
-      pin = str(random.randint(100000, 999999))
-      # send email succesfully before saving to DB
-      send_mail(
-        'Kwiseworld Email Verification',
-        f'Hello 👋.\nYour verification PIN is {pin}. \nIt will expire in 10 minutes',
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-      )
-      EmailVerification.objects.create(user=user, email=user.email, email_verification_pin=pin)
+      # send email succesfully before saving to DB     
+      handle_send_email(user)
     return Response({"message": "verification PIN sent to email."}, status=status.HTTP_200_OK)
 send_email_verificiation = SendEmailVerificationView.as_view()
 
@@ -112,14 +118,14 @@ class VerifyEmailView(APIView):
       utc=pytz.UTC
       if fetch_pin.expiry < utc.localize(datetime.now()):
         fetch_pin.delete() # remove the instnace on the Email OTP table if expired
-        return Response({"error": "PIN expired"}, status=status.HTTP_401_UNAUTHORIZED)
-      if fetch_pin.email_verification_pin == serializer.data['pin']:
+        return Response({"error": "PIN expired"}, status=status.HTTP_410_GONE)
+      if fetch_pin.email_verification_pin == serializer.data['email_pin']:
         user.email_verified = True
         user.save()
         fetch_pin.delete() # remove the instnace on the Email OTP table 
         return Response({"message": "Email verified successfully"}, status=status.HTTP_200_OK)
       return Response({"error": "Invalid PIN"}, status=status.HTTP_403_FORBIDDEN)
-    return Response({"errors": render_errors(serializer.errors)}, status=status.HTTP_404_NOT_FOUND)
+    return Response({"errors": render_errors(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
 verify_email = VerifyEmailView.as_view()
 
 

@@ -9,5 +9,5 @@ bruno/
 todo.md
 load_products.py
 products.csv
-utils/images
+utilities/images
 payment/pay.html
