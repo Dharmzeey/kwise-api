@@ -18,6 +18,13 @@ DATABASES = {
   }
 }
 
+CACHES = {
+  'default': {
+    'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+    'LOCATION': 'password_reset_cache_table',
+  }
+}
+
 
 # settings.py
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

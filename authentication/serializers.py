@@ -56,24 +56,35 @@ class EmailVeriificationSerializer(serializers.Serializer):
   email_pin = serializers.CharField(min_length=6, max_length=6)
   
 
-class ForgotPasswordSerializer(serializers.Serializer):
-  phone_number = serializers.CharField()
+class RequestPasswordResetSerializer(serializers.Serializer):
+  # phone_number = serializers.CharField()
   email = serializers.EmailField()
   
   
-class ResetPasswordSerializer(serializers.Serializer):
-  phone_number = serializers.CharField()
+class VerifyPasswordResetPinSerializer(serializers.Serializer):
+  email_pin = serializers.CharField(min_length=6, max_length=6)
+  reset_token = serializers.CharField()
   email = serializers.EmailField()
-  pin = serializers.CharField(min_length=6, max_length=6)
-  
-
+  # phone_number = serializers.CharField()
+    
 class CreateNewPasswordSerializer(serializers.Serializer):
-  phone_number = serializers.CharField()
   email = serializers.EmailField()
-  pin = serializers.CharField(min_length=6, max_length=6)
-  password = serializers.CharField(min_length=8, max_length=150, error_messages={
+  # phone_number = serializers.CharField()
+  password = serializers.CharField(min_length=8, write_only=True, error_messages={
     'required': 'Please enter a password',
     'min_length': 'Password must be at least 8 characters long',
     'max_length': 'Password must be no more than 128 characters long',
     'invalid': 'Please enter a valid password'
-  })  
+  })
+  confirm_password = serializers.CharField(min_length=8, write_only=True, error_messages={
+    'required': 'Please enter a password',
+    'min_length': 'Password must be at least 8 characters long',
+    'max_length': 'Password must be no more than 128 characters long',
+    'invalid': 'Please enter a valid password'
+  })
+  reset_token = serializers.CharField()
+
+  def validate(self, data):
+    if data['password'] != data['confirm_password']:
+      raise serializers.ValidationError("Passwords don't match")
+    return data
