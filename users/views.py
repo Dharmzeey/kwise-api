@@ -15,6 +15,17 @@ from . import serializers as CustomSerializers
 from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder, Favorite
 
 
+class VerifyUserInfo(APIView):
+  permission_classes = [IsAuthenticated, IsUserVerified]
+  def get(self, request):
+    try:
+      UserInfo.objects.get(user=request.user)
+      return Response({"message": "User info exists"}, status=status.HTTP_200_OK)
+    except UserInfo.DoesNotExist:
+      return Response({"error": "User info does not exist"}, status=status.HTTP_404_NOT_FOUND)
+verify_user_info = VerifyUserInfo.as_view()
+
+
 class CreateUserInfoView(APIView):
   serializer_class = CustomSerializers.UserInfoSerializer
   permission_classes = [IsAuthenticated, IsUserVerified]
@@ -22,7 +33,7 @@ class CreateUserInfoView(APIView):
   def post(self, request):
     serializer = self.serializer_class(data=request.data)
     if not request.user.email_verified:
-      return Response({"error": "Email not verified"}, status=status.HTTP_401_UNAUTHORIZED)
+      return Response({"error": "Email not verified"}, status=status.HTTP_403_FORBIDDEN)
     if serializer.is_valid():
       try:
         serializer.save(user=request.user)
@@ -30,7 +41,7 @@ class CreateUserInfoView(APIView):
         data = {"error": "User profile already exists"}
         return Response(data, status=status.HTTP_409_CONFLICT)      
       data = {"message": "Profile created successfully", "data": serializer.data}
-      return Response(data, status=status.HTTP_200_OK)
+      return Response(data, status=status.HTTP_201_CREATED)
     data = {"errors": render_errors(serializer.errors)}
     return Response(data, status=status.HTTP_400_BAD_REQUEST)
 add_user_info = CreateUserInfoView.as_view()
@@ -43,7 +54,7 @@ class RetrieveUserInfoView(APIView):
     try:
       user = request.user.user_info
     except ObjectDoesNotExist:
-      data = {"message": "User should is yet to fill their personal information"}
+      data = {"message": "User is yet to fill their personal information"}
       return Response(data, status=status.HTTP_404_NOT_FOUND)    
     serializer = self.serializer_class(instance=user)
     data = {"message": "user details", "data": serializer.data}
@@ -81,7 +92,7 @@ class DeleteUserView(DestroyAPIView):
     return user
 delete_user = DeleteUserView.as_view()
 
-
+# Address
 class CreateUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
   permission_classes = [IsAuthenticated, IsUserVerified]

@@ -96,10 +96,4 @@ class PhoneVerification(models.Model):
   phone_verification_pin = models.CharField(max_length=6)
   expiry = models.DateTimeField(default=now_plus_10)
 
-
-class ForgotPassword(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_forgot_password")
-  email = models.EmailField()
-  reset_password_pin = models.CharField(max_length=6)
-  expiry = models.DateTimeField(default=now_plus_10)
   

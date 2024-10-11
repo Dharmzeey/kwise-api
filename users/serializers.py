@@ -9,7 +9,7 @@ from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder, Favorit
 class UserInfoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserInfo
-		fields = ["first_name", "last_name", "other_name", "alternate_email", "alternate_phone_number"]
+		fields = ["first_name", "last_name", "other_name", "alternative_email", "alternative_phone_number"]
 
 
 class UserAddressSerializer(serializers.ModelSerializer):

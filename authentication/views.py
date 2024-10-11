@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, EmailVerification, PhoneVerification, ForgotPassword
+from .models import User, EmailVerification, PhoneVerification
 from authentication.backends import EmailOrPhoneBackend
 
 from utilities.error_handler import render_errors
@@ -85,7 +85,8 @@ class UserLoginView(APIView):
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)  
         data = {
-          "access_token": access_token
+          "access_token": access_token,
+          "refresh_token": str(refresh)
         }
         return Response(data, status=status.HTTP_200_OK)
       return Response({"error": "Invalid Credentials",}, status=status.HTTP_401_UNAUTHORIZED)
@@ -113,7 +114,6 @@ class SendEmailVerificationView(APIView):
       handle_send_email(user)
       return Response({"message": "Verification PIN sent to email."}, status=status.HTTP_200_OK)
 send_email_verificiation = SendEmailVerificationView.as_view()
-
 
 
 class VerifyEmailView(APIView):
@@ -338,3 +338,16 @@ class CreateNewPasswordView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 create_new_password = CreateNewPasswordView.as_view()
+
+
+class LogoutView(APIView):
+  permission_classes = [IsAuthenticated]
+  def post(self, request):
+    try:
+        refresh_token = request.data["refresh_token"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response(status=205)
+    except Exception:
+        return Response(status=400)
+logout = LogoutView.as_view()

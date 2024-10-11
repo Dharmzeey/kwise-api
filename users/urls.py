@@ -3,6 +3,8 @@ from . import views
 
 app_name = "users"
 urlpatterns = [  
+               
+  path('verify/', views.verify_user_info, name="verify_user_info"),
   path('info/', views.add_user_info, name="add_user_info"),
   path('info/retrieve/', views.retrieve_user_info, name="retrieve_user_info"),
   path('info/update/', views.update_user_info, name="update_user_info"),

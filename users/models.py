@@ -10,8 +10,8 @@ class UserInfo(models.Model):
 	first_name = models.CharField(max_length=150, null=False)
 	last_name = models.CharField(max_length=150, null=False)
 	other_name = models.CharField(max_length=100, blank=True, null=True)
-	alternate_email = models.EmailField(null=True, blank=True)
-	alternate_phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')])
+	alternative_email = models.EmailField(null=True, blank=True)
+	alternative_phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')])
 
 	def __str__(self):
 		return f"{self.first_name} - {self.last_name}"
