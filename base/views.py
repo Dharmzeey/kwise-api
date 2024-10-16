@@ -18,7 +18,6 @@ fetch_states = FetchStatesView.as_view()
 
 class FetchLGAView(APIView):
   def get(self, request):
-    print(request.query_params)
     state_id = request.query_params.get("state_id")
     lgas = LGA.objects.filter(state__id=state_id)
     lga_serializer = CustomSerializers.LGASerializer(instance=lgas, many=True)    

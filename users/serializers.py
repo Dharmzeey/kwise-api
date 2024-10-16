@@ -13,20 +13,22 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 
 class UserAddressSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = UserAddress
-		fields = ["state", "city_town", "lga", "prominent_motor_park", "landmark_signatory_place", "address"]
-		extra_kwargs = {
-		"state": {"required": True},
+    state_name = serializers.SerializerMethodField()
+    lga_name = serializers.SerializerMethodField()
+    class Meta:
+        model = UserAddress
+        fields = ["state", "state_name", "city_town", "lga", "lga_name","prominent_motor_park", "landmark_signatory_place", "address"]
+        extra_kwargs = {
+        "state": {"required": True},
 		"city_town": {"required": True},
 		"lga": {"required": True},
 		"address": {"required": True},
-		}
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['state'] = instance.state.name
-		representation['lga'] = instance.lga.name
-		return representation
+  	}
+    # the names are included because of when the user details is sent just for viewing, it originally shows the id, and id is very needed for creation and editing, so hence the initially field and the field_name
+    def get_state_name(self, obj):
+        return obj.state.name
+    def get_lga_name(self, obj):
+        return obj.lga.name
 	
 
 class PendingOrderSerializer(serializers.ModelSerializer):

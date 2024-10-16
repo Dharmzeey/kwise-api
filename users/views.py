@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import DestroyAPIView, ListAPIView, ListCreateAPIView
 
 from authentication.permissions import IsUserVerified
+from authentication.serializers import UserSerializer
 from utilities.error_handler import render_errors
 from utilities.utils import check_lga_and_state_match
 
@@ -57,7 +58,8 @@ class RetrieveUserInfoView(APIView):
       data = {"message": "User is yet to fill their personal information"}
       return Response(data, status=status.HTTP_404_NOT_FOUND)    
     serializer = self.serializer_class(instance=user)
-    data = {"message": "user details", "data": serializer.data}
+    user_serializer = UserSerializer(instance=request.user)
+    data = {"message": "user details", "data": {**serializer.data, **user_serializer.data}} # returns data for user info and auth info
     return Response(data, status=status.HTTP_200_OK)
 retrieve_user_info = RetrieveUserInfoView.as_view()
 
@@ -92,7 +94,20 @@ class DeleteUserView(DestroyAPIView):
     return user
 delete_user = DeleteUserView.as_view()
 
+
 # Address
+
+class VerifyUserAddress(APIView):
+  permission_classes = [IsAuthenticated, IsUserVerified]
+  def get(self, request):
+    try:
+      UserAddress.objects.get(user=request.user)
+      return Response({"message": "User Address info exists"}, status=status.HTTP_200_OK)
+    except UserInfo.DoesNotExist:
+      return Response({"error": "User Address info does not exist"}, status=status.HTTP_404_NOT_FOUND)
+verify_user_address = VerifyUserAddress.as_view()
+
+
 class CreateUserAddressView(APIView):
   serializer_class = CustomSerializers.UserAddressSerializer
   permission_classes = [IsAuthenticated, IsUserVerified]
@@ -100,7 +115,7 @@ class CreateUserAddressView(APIView):
   def post(self, request):
     serializer = self.serializer_class(data=request.data)
     if not request.user.email_verified:
-      return Response({"error": "Email not verified"}, status=status.HTTP_401_UNAUTHORIZED)
+      return Response({"error": "Email not verified"}, status=status.HTTP_403_FORBIDDEN)
     if serializer.is_valid():
       validation_response = check_lga_and_state_match(serializer) 
       if validation_response:
@@ -124,7 +139,7 @@ class RetrieveUserAddressView(APIView):
     try:
       user = request.user.user_address
     except ObjectDoesNotExist:
-      data = {"message": "User should is yet to fill their address information"}
+      data = {"message": "User is yet to fill their address information"}
       return Response(data, status=status.HTTP_404_NOT_FOUND)
     serializer = self.serializer_class(instance=user)
     data = {"message": "user address information", "data": serializer.data}

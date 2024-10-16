@@ -3,7 +3,7 @@ from base.models import State, LGA
 
 def run():
  
-  f = open("utils/data.csv")
+  f = open("utilities/data.csv")
   reader = csv.reader(f)
   next(reader)
   

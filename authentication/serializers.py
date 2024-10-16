@@ -5,7 +5,7 @@ from users.models import User
 
 # USER RELATED SERIALIZERS
 class UserSerializer(serializers.ModelSerializer):
-  id = serializers.SerializerMethodField()
+  # id = serializers.SerializerMethodField()
   password = serializers.CharField(min_length=8, max_length=150, write_only=True, error_messages={
     'required': 'Please enter a password',
     'min_length': 'Password must be at least 8 characters long',
@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
   
   class Meta:
     model = User
-    fields = ['id', 'email', 'phone_number', 'password']
+    fields = ['email', 'phone_number', 'password']
       
   def create(self, validated_data):
     password = validated_data.pop("password")
@@ -33,8 +33,8 @@ class UserSerializer(serializers.ModelSerializer):
     user.save()
     return user
   
-  def get_id(self, obj):
-    return obj.uuid
+  # def get_id(self, obj):
+  #   return obj.uuid
   
 
 class UserLoginSerializer(serializers.Serializer):
