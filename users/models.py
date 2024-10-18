@@ -33,7 +33,7 @@ class PendingOrder(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_pending_order")
 	# Delivery Info
 	name = models.CharField(max_length=100)
-	phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')], unique=True)
+	phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')])
 	state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name="state_pending_order", null=True)
 	city_town = models.CharField(max_length=30)
 	lga = models.ForeignKey(LGA, on_delete=models.SET_NULL, related_name="lga_pending_order", null=True)

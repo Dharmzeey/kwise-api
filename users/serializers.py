@@ -7,9 +7,9 @@ from .models import UserInfo, UserAddress, PendingOrder, CompletedOrder, Favorit
 
   
 class UserInfoSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = UserInfo
-		fields = ["first_name", "last_name", "other_name", "alternative_email", "alternative_phone_number"]
+    class Meta:
+        model = UserInfo
+        fields = ["first_name", "last_name", "other_name", "alternative_email", "alternative_phone_number"]
 
 
 class UserAddressSerializer(serializers.ModelSerializer):
@@ -20,39 +20,51 @@ class UserAddressSerializer(serializers.ModelSerializer):
         fields = ["state", "state_name", "city_town", "lga", "lga_name","prominent_motor_park", "landmark_signatory_place", "address"]
         extra_kwargs = {
         "state": {"required": True},
-		"city_town": {"required": True},
-		"lga": {"required": True},
-		"address": {"required": True},
-  	}
+        "city_town": {"required": True},
+        "lga": {"required": True},
+        "address": {"required": True},
+      }
     # the names are included because of when the user details is sent just for viewing, it originally shows the id, and id is very needed for creation and editing, so hence the initially field and the field_name
     def get_state_name(self, obj):
         return obj.state.name
     def get_lga_name(self, obj):
         return obj.lga.name
-	
+    
 
 class PendingOrderSerializer(serializers.ModelSerializer):
-	
-	class Meta:
-		model = PendingOrder
-		exclude = ["id", "user"]
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['state'] = instance.state.name
-		representation['lga'] = instance.lga.name
-		representation['product'] = instance.product.uuid
-		return representation
-	
+    product_image = serializers.SerializerMethodField()
+    estimated_delivery_date = serializers.DateTimeField(format="%Y-%m-%d ")
+    class Meta:
+        model = PendingOrder
+        exclude = ["user", "created_at"]
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['state'] = instance.state.name
+        representation['lga'] = instance.lga.name
+        representation['product'] = instance.product.uuid
+        return representation
+    def get_product_image(self, obj):
+        request = self.context.get('request') 
+        if request:
+            return request.build_absolute_uri(obj.product.image.url)
+
+    
     
 class CompletedOrderSerializer(serializers.ModelSerializer):
-	
-	class Meta:
-		model = CompletedOrder
-		exclude = ["id", "user"]
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['product'] = instance.product.uuid
-		return representation
+    product_image = serializers.SerializerMethodField()
+    delivery_date = serializers.DateTimeField(format="%Y-%m-%d ")
+    class Meta:
+        model = CompletedOrder
+        exclude = ["user", "created_at"]
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['product'] = instance.product.uuid
+        return representation
+    def get_product_image(self, obj):
+        request = self.context.get('request') 
+        if request:
+            return request.build_absolute_uri(obj.product.image.url)
+
     
     
 class FavoriteSerializer(serializers.ModelSerializer):

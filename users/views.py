@@ -169,24 +169,24 @@ class UpdateUserAddressView(APIView):
 update_user_address = UpdateUserAddressView.as_view()
 
 
-class PendingOrdersViews(ListAPIView):
+class PendingOrdersView(ListAPIView):
   serializer_class = CustomSerializers.PendingOrderSerializer
   permission_classes = [IsAuthenticated, IsUserVerified]
   
   def get_queryset(self):
-    qs = PendingOrder.objects.filter(id=self.request.user.id)
+    qs = PendingOrder.objects.filter(user=self.request.user.id)
     return qs
-pending_orders = PendingOrdersViews.as_view()
+pending_orders = PendingOrdersView.as_view()
 
 
-class CompletedOrdersViews(ListAPIView):
+class CompletedOrdersView(ListAPIView):
   serializer_class = CustomSerializers.CompletedOrderSerializer
   permission_classes = [IsAuthenticated, IsUserVerified]
   
   def get_queryset(self):
-    qs = CompletedOrder.objects.filter(id=self.request.user.id)
+    qs = CompletedOrder.objects.filter(user=self.request.user.id)
     return qs
-completed_orders = CompletedOrdersViews.as_view()
+completed_orders = CompletedOrdersView.as_view()
 
 
 class FavoriteListCreateView(ListCreateAPIView):
