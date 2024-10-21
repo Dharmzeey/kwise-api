@@ -10,6 +10,10 @@ from authentication.permissions import IsUserVerified
 from utilities.error_handler import render_errors
 from utilities.utils import check_lga_and_state_match
 
+from authentication.serializers import UserSerializer
+from users.serializers import UserInfoSerializer, UserAddressSerializer
+
+
 from .service import Cart
 from .serializers import OrderAddressSerializer
 
@@ -17,10 +21,12 @@ from .serializers import OrderAddressSerializer
 class GetCartView(APIView):
     
     def get(self, request, format=None):
+        print(request.session.session_key)
         cart = Cart(request)
         return Response(
             {   
-                "data": list(cart.__iter__()),
+                "data": list(cart.__iter__(request)),
+                "item_count": cart.__len__(),
                 "grand_total_price": cart.get_total_price()                
             },
             status=status.HTTP_200_OK
@@ -34,50 +40,67 @@ class ModifyCartView(APIView):
     """
 
     def post(self, request, **kwargs):
+        import re
+        regex = re.compile('^HTTP_')
+        aa = dict((regex.sub('', header), value) for (header, value) in request.META.items() if header.startswith('HTTP_'))
+        print(aa)
+        # print(request.session.get(settings.CART_SESSION_ID))
+        # print(request.session.session_key)
         product_uuid = request.data["product_id"]
         action = request.data.get("action")
         cart = Cart(request)
+        action_status = False
         
+        # action status is either Trur or false returned by the service.py when an action succeeds or not
         if action == "increament":
-            cart.increament(product_uuid=product_uuid)
+            action_status = cart.increament(product_uuid=product_uuid)
         
         elif action == "decreament":
-            cart.decreament(product_uuid=product_uuid)
+            action_status = cart.decreament(product_uuid=product_uuid)
             
         elif action == "update":
             quantity = request.data.get("quantity", 0)
-            cart.update(product_uuid=product_uuid, quantity=quantity)
+            action_status = cart.update(product_uuid=product_uuid, quantity=quantity)
             
         elif action == "remove":
-            cart.remove(product_uuid=product_uuid)
+            action_status = cart.remove(product_uuid=product_uuid)
             
         elif action == "clear":
-            cart.clear()
+            action_status = cart.clear()
 
         elif action == "add":
-            cart.add(product_uuid=product_uuid)
+            action_status = cart.add(product_uuid=product_uuid)
             
         else:
             return Response(
                 {"error": "Action not recognized"},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_400_BAD_REQUEST
             )
-            
-        return Response(
+        # if action_status returns true
+        if action_status:
+            return Response(
             {"message": "cart updated"},
             status=status.HTTP_202_ACCEPTED
         )
+        else:
+            return Response(
+            {"error": "Product not found"},
+            status=status.HTTP_404_NOT_FOUND
+            )
+    
+        
 modify_cart = ModifyCartView.as_view()
 
 
-def _get_cart_summary(cart):
-    cart_list = list(cart.__iter__())
+def _get_cart_summary(cart, request):
+    cart_list = list(cart.__iter__(request=request))
     grand_total = cart.get_total_price()
     data = {}
     data_list = []
     for i in cart_list:
         data_list.append(
             {
+                "cart_item_id": i['product']['id'],
                 "cart_item_name": i['product']['name'],
                 "cart_item_quantity": i['quantity'],
                 "cart_item_price": i['price'] * i['quantity'],
@@ -92,11 +115,35 @@ def _get_cart_summary(cart):
     return data
 
 
+class UserCheckoutDetails(APIView):
+    permission_classes = [IsAuthenticated, IsUserVerified]
+    def get(self, request):
+        try:
+            user = request.user
+            user_info = request.user.user_info
+            user_address = request.user.user_address
+            user_serializer = UserSerializer(instance=user)
+            user_info_serializer = UserInfoSerializer(instance=user_info)
+            user_address_serializer = UserAddressSerializer(instance=user_address)
+            data = {
+                'name': f'{user_info_serializer.data['first_name']} {user_info_serializer.data['last_name']}',
+                'place': f'{user_address_serializer.data['city_town']} {user_address_serializer.data['state_name']}',
+                'address': f'{user_address_serializer.data['address']}',
+                'phone_number': f'{user_serializer.data['phone_number']}',
+                'alternative_phone_number': f'{user_info_serializer.data['alternative_phone_number']}',
+            }
+            data = {"message": "user checkout information", "data": data}
+            return Response(data, status=status.HTTP_200_OK)
+        except:
+            return Response({"error": "An error occured"}, status=status.HTTP_404_NOT_FOUND)
+user_checkout_details = UserCheckoutDetails.as_view()
+
+
 class CheckoutView(APIView):
     permission_classes = [IsAuthenticated, IsUserVerified]
     def get(self, request):
         cart = Cart(request)
-        data = _get_cart_summary(cart)        
+        data = _get_cart_summary(cart, request)    
         return Response(data, status=status.HTTP_200_OK)
 checkout = CheckoutView.as_view()
 

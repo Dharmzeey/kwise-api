@@ -10,5 +10,3 @@ class IsUserVerified(BasePermission):
                 raise PermissionDenied(detail=self.message)
             return True
         return False
-
-

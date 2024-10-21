@@ -7,6 +7,28 @@ ALLOWED_HOSTS = ['*']
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CSRF_TRUSTED_ORIGINS = ("http://localhost:3000", "http://127.0.0.1:3000",)
+# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ORIGIN_WHITELIST = ("http://localhost:3000", "http://localserver:3000",)
+
+# CSRF_COOKIE_SECURE = False
+# CSRF_COOKIE_HTTPONLY = False
+# SESSION_COOKIE_SAMESITE = False
+# SESSION_COOKIE_DOMAIN = "http://localserver:3000"
+
+# CSRF_USE_SESSIONS = False
+# SESSION_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
+# CSRF_COOKIE_SAMESITE = None
+# SESSION_COOKIE_SAMESITE = None
+
+
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql',

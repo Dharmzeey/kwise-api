@@ -33,7 +33,7 @@ class Product(models.Model):
   brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True)
   name = models.CharField(max_length=30)
   description = models.TextField()
-  price = models.DecimalField(max_digits=15, decimal_places=2)
+  price = models.IntegerField()
   image = models.ImageField(upload_to="products/%Y/%m")
   stock = models.IntegerField()
   availability_status = models.IntegerField(choices=AVAILABILITY_STATUS_CHOICES)

@@ -24,56 +24,71 @@ class Cart:
 
     def save(self):
         self.session.modified = True
-
+        
     def add(self, product_uuid):
         if product_uuid not in self.cart:
             product = Product.objects.get(uuid=product_uuid)
             self.cart[product_uuid] = {
                 "quantity": 1,
-                "price":  float(product.price)# just for initialization will be updated later in the __iter__()
+                "price":  product.price# just for initialization will be updated later in the __iter__()
             }
-        self.save()
-        
+            self.save()
+            return True
+        elif product_uuid in self.cart:
+            # if the item uuid is there already and 'add' is called, just increament it by one
+            self.increament(product_uuid=product_uuid)
+            return True
+        return False
+
     def increament(self, product_uuid):
         product = Product.objects.get(uuid=product_uuid)
         if  (product_uuid in self.cart) and (product.stock > self.cart[product_uuid]["quantity"]):
             self.cart[product_uuid]["quantity"] += 1
             self.save()
+            return True
+        return False
+
             
     def decreament(self, product_uuid):
         if (product_uuid in self.cart) and (self.cart[product_uuid]["quantity"] > 1):
             self.cart[product_uuid]["quantity"] -= 1
             self.save()
+            return True
+        return False
             
     def update(self, product_uuid, quantity):
         product = Product.objects.get(uuid=product_uuid)
         if  (product_uuid in self.cart) and (product.stock > int(quantity) + self.cart[product_uuid]["quantity"]):
             self.cart[product_uuid]["quantity"] += int(quantity)
+            self.save()
+            return True
         elif  (product_uuid in self.cart):
             self.cart[product_uuid]["quantity"] = product.stock
-        
-        self.save()
+            self.save()
+            return True
+        return False
 
     def remove(self, product_uuid):
         if product_uuid in self.cart:
             del self.cart[product_uuid]
             self.save()
+            return True
+        return False
 
-    def __iter__(self):
+    def __iter__(self, request):
         """
         Loop through cart items and fetch the products from the database
         """
         product_uuids = self.cart.keys()
-        print(product_uuids)
         products = Product.objects.filter(uuid__in=product_uuids)
         cart = self.cart.copy()
         for product in products:
             cart_item = cart[str(product.uuid)]
-            cart_item["product"] = ProductSerializer(product).data
-            cart_item["price"] = float(product.price) #add the price k,v to the dict
-            cart_item["total_price"] = float(product.price) * cart_item["quantity"] #add the total_price k,v to the dict
+            cart_item["product"] = ProductSerializer(product, context={'request': request}).data
+            cart_item["price"] = product.price #add the price k,v to the dict
+            cart_item["total_price"] = product.price * cart_item["quantity"] #add the total_price k,v to the dict
 
-            self.cart[str(product.uuid)]["price"] = float(product.price) #updates the price per product in the cart field of this class instance
+            self.cart[str(product.uuid)]["price"] = product.price #updates the price per product in the cart field of this class instance
             yield cart_item
 
     def __len__(self):
@@ -84,6 +99,7 @@ class Cart:
 
     def get_total_price(self):
         return sum(Decimal(item["price"]) * item["quantity"] for item in self.cart.values())
+    
 
     def clear(self):
         del self.session[settings.CART_SESSION_ID]

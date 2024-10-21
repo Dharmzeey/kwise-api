@@ -18,9 +18,7 @@ class ProductBrandView(ListAPIView):
   
   def get_queryset(self):
     q = self.request.query_params.get("q")
-    print(q)
     qs = Brand.objects.filter(category__name__iexact=q)
-    print(qs)
     return qs
   
 product_brands = ProductBrandView.as_view()
