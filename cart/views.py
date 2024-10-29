@@ -127,7 +127,7 @@ class UserCheckoutDetails(APIView):
             user_address_serializer = UserAddressSerializer(instance=user_address)
             data = {
                 'name': f'{user_info_serializer.data['first_name']} {user_info_serializer.data['last_name']}',
-                'place': f'{user_address_serializer.data['city_town']} {user_address_serializer.data['state_name']}',
+                'place': f'{user_address_serializer.data['city_town']}, {user_address_serializer.data['state_name']}',
                 'address': f'{user_address_serializer.data['address']}',
                 'phone_number': f'{user_serializer.data['phone_number']}',
                 'alternative_phone_number': f'{user_info_serializer.data['alternative_phone_number']}',
@@ -154,7 +154,7 @@ class OrderSummary(APIView):
     def post(self, request):
         cart = Cart(request)
         serializer = self.serializer_class(data=request.data)
-        use_default = request.data.get("use_default", True)
+        use_default = request.data.get("use_default", False)
         if use_default:
             try:                    
                 user_phone = request.user.phone_number
@@ -167,7 +167,7 @@ class OrderSummary(APIView):
                     user_address=user_address
                 )
                 data = {
-                    "cart_summary": _get_cart_summary(cart),
+                    "cart_summary": _get_cart_summary(cart, request),
                     "address_info": address_info
                 }
                 return Response(data, status=status.HTTP_200_OK)
@@ -175,19 +175,19 @@ class OrderSummary(APIView):
                 data = {
                     "message": "User should fill their user and address information"
                 }
-                return Response(data, status=status.HTTP_200_OK)
+                return Response(data, status=status.HTTP_404_NOT_FOUND)
         if serializer.is_valid():
             validated_response = check_lga_and_state_match(serializer)
             if validated_response:
                 return validated_response
             address_info = cart.include_address(False, serializer=serializer.data)
             data = {
-                "cart_summary": _get_cart_summary(cart),
+                "cart_summary": _get_cart_summary(cart, request),
                 "address_info": address_info
             }
             return Response(data, status=status.HTTP_200_OK)
         data = {
             "error": render_errors(serializer.errors)
         }
-        return Response(data, status=status.HTTP_302_FOUND)
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
 order_summary = OrderSummary.as_view()

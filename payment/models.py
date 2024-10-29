@@ -12,8 +12,9 @@ from .paystack  import  Paystack
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_payment')
     amount = models.PositiveIntegerField()
-    ref = models.CharField(max_length=200)
     email = models.EmailField()
+    access_code = models.CharField()
+    ref = models.CharField(max_length=200)
     verified = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -23,14 +24,14 @@ class Payment(models.Model):
     def __str__(self):
         return f"User: {self.user} - Payment: {self.amount}"
 
-    def save(self, *args, **kwargs):
-        while not self.ref:
-            ref = secrets.token_urlsafe(50)
-            object_with_similar_ref = Payment.objects.filter(ref=ref)
-            if not object_with_similar_ref:
-                self.ref = ref
+    # def save(self, *args, **kwargs):
+    #     while not self.ref:
+    #         ref = secrets.token_urlsafe(50)
+    #         object_with_similar_ref = Payment.objects.filter(ref=ref)
+    #         if not object_with_similar_ref:
+    #             self.ref = ref
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
         
     def amount_value(self):
         return int(self.amount) * 100

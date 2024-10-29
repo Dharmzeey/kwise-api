@@ -9,25 +9,30 @@ from authentication.permissions import IsUserVerified
 from cart.service import Cart
 
 from .models import Payment
-from .serializers import PaymentSerializer
+from. paystack import Paystack
 
 
 class InitiatePayment(APIView):
     permission_classes = [IsAuthenticated, IsUserVerified]
     def post(self, request):
-        pk = settings.PAYSTACK_PUBLIC_KEY
         cart = Cart(request)
-        payment = Payment.objects.create(amount=cart.get_total_price(), email=request.user.email, user=request.user)
-        payment.save()
-        serializer = PaymentSerializer(payment)
-        data = {
-            'payment': serializer.data,
-            'field_values': request.POST,
-            'paystack_pub_key': pk,
-            'amount_value': payment.amount_value(),
-        }
-        return Response(data, status=status.HTTP_200_OK)
-
+        payment = Paystack()
+        payment_init = payment.initialize_payment(email=request.user.email, amount=cart.get_total_price())
+        # data = {"access_code": 'q3e3gf2wws9b7xc'}
+        #     # access code is returned to FE to resume and continue tnx
+        # return Response(data, status=status.HTTP_200_OK)
+        if payment_init[0] == 200: # if the first item in the tuple which is the status code
+            payment = Payment.objects.create(user=request.user, amount=cart.get_total_price(), email=request.user.email, access_code=payment_init[1], ref=payment_init[2])
+            payment.save()
+            data = {"access_code": payment_init[1]}
+            # access code is returned to FE to resume and continue tnx
+            return Response(data, status=status.HTTP_200_OK)
+        elif payment_init[0] == 500:
+            data = {"error": "payment initialization timed out"}
+            return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            data = {"error": "payment could not be initialized"}
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 initiate_payment = InitiatePayment.as_view()
 
 
@@ -40,7 +45,6 @@ class VerifyPayment(APIView):
 
         if verified:
             # fetch the current session and then establish the orders for all product #pending order gets created here
-            print(request.user.username, " funded wallet successfully")
             return render(request, "success.html")
         return render(request, "success.html")
 
