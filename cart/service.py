@@ -109,9 +109,9 @@ class Cart:
              address_data = {
                 "name" : f"{user_info.first_name} {user_info.last_name}",
                 "phone_number" : user_phone,
-                "state" : user_address.state.name,
+                "state" : user_address.state.id,
                 "city_town" : user_address.city_town,
-                "lga" : user_address.lga.name,
+                "lga" : user_address.lga.id,
                 "prominent_motor_park" : user_address.prominent_motor_park,
                 "landmark_signatory_place" : user_address.landmark_signatory_place,
                 "address" : user_address.address

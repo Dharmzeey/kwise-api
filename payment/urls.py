@@ -4,5 +4,6 @@ from . import views
 app_name = "payment"
 urlpatterns = [
   path("", views.initiate_payment, name="initiate_payment"),
-  path("verify/", views.verify_payment, name="verify_payment"),  
+  path("verify/", views.verify_payment, name="verify_payment"),
+  path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook"),
 ]

@@ -3,6 +3,7 @@ from rest_framework.exceptions import PermissionDenied
 
 class IsUserVerified(BasePermission):
     message = "User email not verified."
+    # a status code 403 with message above will be sent for unverified users
 
     def has_permission(self, request, view):
         if request.user.is_authenticated:

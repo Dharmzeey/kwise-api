@@ -1,9 +1,4 @@
-import secrets
-
 from django.db import models
-from django.utils import timezone
-from django.db import models
-
 from users.models import User
 from .paystack  import  Paystack
 
@@ -15,6 +10,8 @@ class Payment(models.Model):
     email = models.EmailField()
     access_code = models.CharField()
     ref = models.CharField(max_length=200)
+    session_id = models.CharField(max_length=100) # this will be the id to the session db so as to later query the products and address
+    session_data = models.TextField()
     verified = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
