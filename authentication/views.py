@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
+from django.core.cache import caches
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,20 +22,32 @@ from utilities.error_handler import render_errors
 
 
 from . import serializers as CustomSerializers
+email_verification_cache = caches['email_verification']
+password_reset_cache = caches['password_reset']
 
 def generate_reset_token():
   return ''.join(random.choices(string.ascii_letters + string.digits, k=64))
 
 def handle_send_email(user):
-  pin = str(random.randint(100000, 999999))
-  send_mail(
+    pin = str(random.randint(100000, 999999))
+    send_mail(
     'Kwiseworld Email Verification',
     f'Hello 👋.\nYour verification PIN is {pin}. \nIt will expire in 10 minutes',
     settings.DEFAULT_FROM_EMAIL,
     [user.email],
     fail_silently=False,
     )
-  EmailVerification.objects.create(user=user, email=user.email, email_verification_pin=pin)
+    
+    email_verification_cache.set(
+            f"email_verification:{user.email}", 
+            {
+                'email_pin': pin,
+                'timestamp': datetime.now(pytz.UTC).timestamp(),
+                'verified': False  # Track if PIN has been verified
+            },
+            timeout=600  # 10 minutes
+        )
+    EmailVerification.objects.create(user=user, email=user.email, email_verification_pin=pin)
   
 
 class UserCreateView(APIView):
@@ -102,42 +114,38 @@ class SendEmailVerificationView(APIView):
     if user.email_verified:
       return Response({"error": "Email has already been verified"}, status=status.HTTP_201_CREATED)        
     utc = pytz.UTC
-    try:
-      fetch_pin = EmailVerification.objects.get(user=user)      
-      # Check if the verification PIN has expired
-      if fetch_pin.expiry < utc.localize(datetime.now()):
-        fetch_pin.delete()
-        handle_send_email(user)
-        return Response({"message": "Verification PIN expired. New PIN sent to email."}, status=status.HTTP_200_OK) 
-      return Response({"message": "Email Verification already sent"}, status=status.HTTP_409_CONFLICT)  
-    except EmailVerification.DoesNotExist:
-      handle_send_email(user)
-      return Response({"message": "Verification PIN sent to email."}, status=status.HTTP_200_OK)
+    existing_data = email_verification_cache.get(f"email_verification:{user.email}")
+    if existing_data:
+        return Response(
+            {"error": "Email Verification already sent"}, 
+                status=status.HTTP_409_CONFLICT
+            )
+    handle_send_email(user)
+    return Response({"message": "Verification PIN expired. New PIN sent to email."}, status=status.HTTP_200_OK) 
 send_email_verificiation = SendEmailVerificationView.as_view()
 
 
 class VerifyEmailView(APIView):
-  permission_classes = [IsAuthenticated]
-  serializer_class = CustomSerializers.EmailVeriificationSerializer
-  def post(self, request):
-    serializer = self.serializer_class(data=request.data)
-    if serializer.is_valid():
-      user=request.user
-      try:
-        fetch_pin = EmailVerification.objects.get(user=user)
-      except EmailVerification.DoesNotExist:
-        return Response({"error": "PIN has not been sent"}, status=status.HTTP_404_NOT_FOUND)
-      utc=pytz.UTC
-      if fetch_pin.expiry < utc.localize(datetime.now()):
-        fetch_pin.delete() # remove the instnace on the Email OTP table if expired
-        return Response({"error": "PIN expired"}, status=status.HTTP_410_GONE)
-      if fetch_pin.email_verification_pin == serializer.data['email_pin']:
-        user.email_verified = True
-        user.save()
-        fetch_pin.delete() # remove the instnace on the Email OTP table 
-        return Response({"message": "Email verified successfully"}, status=status.HTTP_200_OK)
-      return Response({"error": "Invalid PIN"}, status=status.HTTP_403_FORBIDDEN)
-    return Response({"errors": render_errors(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [IsAuthenticated]
+    serializer_class = CustomSerializers.EmailVeriificationSerializer
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user=request.user
+            cached_data = email_verification_cache.get(f"email_verification:{user.email}")
+            if not cached_data:
+                return Response(
+                    {"error": "Email verification PIN expired or has not been sent"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            if cached_data['email_pin'] == serializer.data['email_pin']:
+                user.email_verified = True
+                user.save()
+                email_verification_cache.delete(f"email_verification:{user.email}")
+                return Response({"message": "Email verified successfully"}, status=status.HTTP_200_OK)
+            elif cached_data['email_pin'] != serializer.data['email_pin']:
+                return Response({"error": "Invalid PIN"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"errors": render_errors(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
 verify_email = VerifyEmailView.as_view()
 
 
@@ -165,7 +173,7 @@ class RequestPasswordResetView(APIView):
                 )
                 
                 # Check if PIN already exists in cache
-                existing_data = cache.get(f"password_reset:{user.email}")
+                existing_data = password_reset_cache.get(f"password_reset:{user.email}")
                 if existing_data:
                     return Response(
                         {"error": "password reset PIN already sent"}, 
@@ -186,7 +194,7 @@ class RequestPasswordResetView(APIView):
                 )
 
                 # Store in cache with 10 minutes expiration
-                cache.set(
+                password_reset_cache.set(
                     f"password_reset:{user.email}", 
                     {
                         'email_pin': email_pin,
@@ -227,11 +235,11 @@ class VerifyPasswordResetPinView(APIView):
             reset_token = serializer.validated_data.get('reset_token') 
 
             # Get stored data from cache
-            cached_data = cache.get(f"password_reset:{email}")
+            cached_data = password_reset_cache.get(f"password_reset:{email}")
             
             if not cached_data:
                 return Response(
-                    {"error": "password reset PIN has not been sent"}, 
+                    {"error": "password reset PIN expired or has not been sent"}, 
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -252,7 +260,7 @@ class VerifyPasswordResetPinView(APIView):
             # Check expiration
             timestamp = cached_data['timestamp']
             if (datetime.now(pytz.UTC).timestamp() - timestamp) > 600:  # 10 minutes
-                cache.delete(f"password_reset:{email}")
+                password_reset_cache.delete(f"password_reset:{email}")
                 return Response(
                     {"error": "Password reset PIN expired"}, 
                     status=status.HTTP_401_UNAUTHORIZED
@@ -271,12 +279,12 @@ class VerifyPasswordResetPinView(APIView):
             # Update cache with new token and mark as verified
             cached_data['reset_token'] = reset_token
             cached_data['verified'] = True
-            cache.set(
+            password_reset_cache.set(
                 f"password_verify:{email}",
                 cached_data,
                 timeout=600  # Reset timeout for another 10 minutes
             )
-            cache.delete(f"password_reset:{email}")
+            password_reset_cache.delete(f"password_reset:{email}")
 
             return Response({
                 "message": "Password reset PIN verified successfully",
@@ -304,7 +312,7 @@ class CreateNewPasswordView(APIView):
             try:
                 # user = User.objects.get(email=email, phone_number=phone_number)
                 user = User.objects.get(email=email)
-                cached_data = cache.get(f"password_verify:{email}")
+                cached_data = password_reset_cache.get(f"password_verify:{email}")
                 
                 if not cached_data:
                     return Response(
@@ -321,7 +329,7 @@ class CreateNewPasswordView(APIView):
                     )
                 user.set_password(new_password)
                 user.save()
-                cache.delete(f"password_verify:{email}")            
+                password_reset_cache.delete(f"password_verify:{email}")            
                 return Response(
                     {"message": "password changed successfully"}, 
                     status=status.HTTP_200_OK

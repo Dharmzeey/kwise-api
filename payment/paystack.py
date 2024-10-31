@@ -1,7 +1,8 @@
-from django.conf import settings
 import requests
-from requests.exceptions import ReadTimeout, ConnectionError
 import json
+from requests.exceptions import ReadTimeout, ConnectionError
+from django.conf import settings
+from utilities.logging_utils import log_error
 
 class Paystack:
     PAYSTACK_SK = settings.PAYSTACK_SECRET_KEY
@@ -24,11 +25,11 @@ class Paystack:
             return 500, # this is to simulate error 500
         
         if response.status_code == 200:
+            log_error(f'paystack status code {response.status_code} with response -- {response.json()}')
             response_data = response.json()
             return response.status_code, response_data['data']['access_code'], response_data['data']['reference']
         else:
-            print(response.status_code)
-            print(response.json())
+            log_error(f'paystack initiate payment status code {response.status_code} \n with response -- {response.json()}')
             return response.status_code,
 
     def verify_payment(self, ref, *args, **kwargs):
@@ -39,9 +40,10 @@ class Paystack:
         }
         url = self.base_url + path
         response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            response_data = response.json()
+        response_data = response.json()
+        if response.status_code == 200 and response_data['data']['status'] == 'success':            
             return response_data['status'], response_data['data']
+        log_error(f'paystack verify payment status code {response.status_code} \n with response -- {response.json()}')
 
         response_data = response.json()
 

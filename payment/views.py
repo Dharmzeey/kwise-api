@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from authentication.permissions import IsUserVerified
-from base.models import State, LGA
+from base.models import State, LGA 
 from cart.service import Cart
 from products.models import Product
 from users.models import PendingOrder
@@ -36,10 +36,13 @@ class InitiatePayment(APIView):
         get_session_id = request.session.session_key
         session_obj = Session.objects.get(session_key=get_session_id)
         session_data = session_obj.get_decoded()
-        print(session_data)
         encoded_session_data = base64.b64encode(pickle.dumps(session_data)).decode()
-        print(encoded_session_data)
-       
+        if not (cart.address and cart.cart):
+            """
+            This means if the user still wants to access payment modal and cart is empty
+            """
+            data = {"error": "No item in cart"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
         payment_init = payment.initialize_payment(email=request.user.email, amount=cart.get_total_price())
         # access code is returned to FE to resume and continue tnx
         if payment_init[0] == 200: # if the first item in the tuple which is the status code
@@ -75,15 +78,25 @@ class PaystackWebhookView(APIView):
                 transaction_id = data['data']['id']
                 reference_id = data['data']['reference']
                 amount = int(data['data']['amount']) / 100 # return back to NGN from kobo
-                print(transaction_id, reference_id, amount, user_email)
-                process_order(reference_id, amount, user_email)
+                if check_payment(reference_id):
+                    process_order(reference_id, amount, user_email)   
             return JsonResponse({"status": "success"}, status=200)
 paystack_webhook = PaystackWebhookView.as_view()
 
 
+def check_payment(reference):
+    paystack = Paystack()
+    payment_status = paystack.verify_payment(reference)
+    if payment_status[0] == True:
+        return True
+    return False
+    
+
 def process_order(reference, amount, user_email):
     user = User.objects.get(email=user_email)
     get_payment = Payment.objects.get(ref=reference, amount=amount)
+    get_payment.verify_payment() # change the verified status of the model to True
+    get_payment.save()
     decoded_session_data = pickle.loads(base64.b64decode(get_payment.session_data.encode()))
     session_cart = decoded_session_data.get(settings.CART_SESSION_ID)
     session_address = decoded_session_data.get(settings.ADDRESS_SESSION_ID)
@@ -118,7 +131,6 @@ def process_order(reference, amount, user_email):
             estimated_delivery_date=timezone.now() + timedelta(days=2)
         )
         order.save()
-        
          # Remove cart data from the session current and save it
         session_obj = Session.objects.get(session_key=get_payment.session_id)
         session_data = session_obj.get_decoded()
@@ -139,6 +151,4 @@ class VerifyPayment(APIView):
             # fetch the current session and then establish the orders for all product #pending order gets created here
             return render(request, "success.html")
         return render(request, "success.html")
-
-
 verify_payment = VerifyPayment.as_view()
