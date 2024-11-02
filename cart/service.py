@@ -23,20 +23,6 @@ class Cart:
     def save(self):
         self.session.modified = True
         
-    def add(self, product_uuid):
-        if product_uuid not in self.cart:
-            product = Product.objects.get(uuid=product_uuid)
-            self.cart[product_uuid] = {
-                "quantity": 1,
-                "price":  product.price# just for initialization will be updated later in the __iter__()
-            }
-            self.save()
-            return True
-        elif product_uuid in self.cart:
-            # if the item uuid is there already and 'add' is called, just increament it by one
-            self.increament(product_uuid=product_uuid)
-            return True
-        return False
 
     def increament(self, product_uuid):
         product = Product.objects.get(uuid=product_uuid)
@@ -60,8 +46,16 @@ class Cart:
             self.cart[product_uuid]["quantity"] += int(quantity)
             self.save()
             return True
-        elif  (product_uuid in self.cart):
+        elif product_uuid in self.cart:
             self.cart[product_uuid]["quantity"] = product.stock
+            self.save()
+            return True
+        elif  (product_uuid not in self.cart) and product.stock > int(quantity):
+            product = Product.objects.get(uuid=product_uuid)
+            self.cart[product_uuid] = {
+                "quantity": int(quantity),
+                "price":  product.price# just for initialization will be updated later in the __iter__()
+            }
             self.save()
             return True
         return False

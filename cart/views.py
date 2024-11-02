@@ -13,7 +13,6 @@ from utilities.utils import check_lga_and_state_match
 from authentication.serializers import UserSerializer
 from users.serializers import UserInfoSerializer, UserAddressSerializer
 
-
 from .service import Cart
 from .serializers import OrderAddressSerializer
 
@@ -21,7 +20,6 @@ from .serializers import OrderAddressSerializer
 class GetCartView(APIView):
     
     def get(self, request, format=None):
-        print(request.session.session_key)
         cart = Cart(request)
         return Response(
             {   
@@ -40,16 +38,12 @@ class ModifyCartView(APIView):
     """
 
     def post(self, request, **kwargs):
-        import re
-        regex = re.compile('^HTTP_')
-        aa = dict((regex.sub('', header), value) for (header, value) in request.META.items() if header.startswith('HTTP_'))
-        print(aa)
-        # print(request.session.get(settings.CART_SESSION_ID))
-        # print(request.session.session_key)
         product_uuid = request.data["product_id"]
         action = request.data.get("action")
         cart = Cart(request)
         action_status = False
+        print(action)
+        print(product_uuid)
         
         # action status is either Trur or false returned by the service.py when an action succeeds or not
         if action == "increament":
@@ -67,9 +61,6 @@ class ModifyCartView(APIView):
             
         elif action == "clear":
             action_status = cart.clear()
-
-        elif action == "add":
-            action_status = cart.add(product_uuid=product_uuid)
             
         else:
             return Response(
