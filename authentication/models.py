@@ -40,60 +40,60 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-  uuid = models.UUIDField(editable=False, default=uuid.uuid4)
-  password = models.CharField(max_length=128)
-  phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')], unique=True)
-  email = models.EmailField(max_length=100 ,unique=True)
-  email_verified = models.BooleanField(default=False)
-  phone_number_verified = models.BooleanField(default=False)
-  
-  created = models.DateTimeField(auto_now_add=True)
-  updated = models.DateTimeField(auto_now=True)
-  
-  # required fields
-  date_joined = models.DateTimeField(auto_now_add=True)
-  last_login = models.DateTimeField(auto_now=True)
-  is_admin = models.BooleanField(default=False)
-  is_staff = models.BooleanField(default=False)
-  is_active = models.BooleanField(default=True)
-  is_superuser = models.BooleanField(default=False)
-  
-  USERNAME_FIELD = 'email'
-  REQUIRED_FIELDS = ['phone_number']
-  objects = UserManager()
-  
-  class Meta:
-    ordering = ["date_joined"]
-    
-  def __str__(self):
-    return self.email
-  
-  def has_perm(self, perm, obj=None):
-    return self.is_admin
-  
-  def has_module_perms(self, app_label):
-    return True
+	uuid = models.UUIDField(editable=False, default=uuid.uuid4)
+	password = models.CharField(max_length=128)
+	phone_number = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')], unique=True)
+	email = models.EmailField(max_length=100 ,unique=True)
+	email_verified = models.BooleanField(default=False)
+	phone_number_verified = models.BooleanField(default=False)
+
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
+
+	# required fields
+	date_joined = models.DateTimeField(auto_now_add=True)
+	last_login = models.DateTimeField(auto_now=True)
+	is_admin = models.BooleanField(default=False)
+	is_staff = models.BooleanField(default=False)
+	is_active = models.BooleanField(default=True)
+	is_superuser = models.BooleanField(default=False)
+
+	USERNAME_FIELD = 'email'
+	REQUIRED_FIELDS = ['phone_number']
+	objects = UserManager()
+
+	class Meta:
+		ordering = ["date_joined"]
+
+	def __str__(self):
+		return self.email
+
+	def has_perm(self, perm, obj=None):
+		return self.is_admin
+
+	def has_module_perms(self, app_label):
+		return True
 
 
-def now_plus_10():
-  """
-  Function that returns current datetime + 10 minutes.
-  """
-  return datetime.now() + timedelta(minutes=10)
+# def now_plus_10():
+#   """
+#   Function that returns current datetime + 10 minutes.
+#   """
+#   return datetime.now() + timedelta(minutes=10)
 
 
 
-class EmailVerification(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_email_verification")
-  email = models.EmailField()
-  email_verification_pin = models.CharField(max_length=6)
-  expiry = models.DateTimeField(default=now_plus_10)
+# class EmailVerification(models.Model):
+#   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_email_verification")
+#   email = models.EmailField()
+#   email_verification_pin = models.CharField(max_length=6)
+#   expiry = models.DateTimeField(default=now_plus_10)
   
 
-class PhoneVerification(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_verify_phone")
-  phone = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')])
-  phone_verification_pin = models.CharField(max_length=6)
-  expiry = models.DateTimeField(default=now_plus_10)
+# class PhoneVerification(models.Model):
+#   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_verify_phone")
+#   phone = models.CharField(max_length=11, validators=[RegexValidator(r'^0\d{10}$', 'Mobile number should be 11 digits starting with 0.')])
+#   phone_verification_pin = models.CharField(max_length=6)
+#   expiry = models.DateTimeField(default=now_plus_10)
 
   

@@ -15,7 +15,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, EmailVerification, PhoneVerification
 from authentication.backends import EmailOrPhoneBackend
 
 from utilities.error_handler import render_errors
