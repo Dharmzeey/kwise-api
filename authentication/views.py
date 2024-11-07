@@ -19,8 +19,11 @@ from authentication.backends import EmailOrPhoneBackend
 
 from utilities.error_handler import render_errors
 
-
 from . import serializers as CustomSerializers
+
+User = get_user_model()
+
+
 email_verification_cache = caches['email_verification']
 password_reset_cache = caches['password_reset']
 
@@ -46,7 +49,6 @@ def handle_send_email(user):
             },
             timeout=600  # 10 minutes
         )
-    EmailVerification.objects.create(user=user, email=user.email, email_verification_pin=pin)
   
 
 class UserCreateView(APIView):

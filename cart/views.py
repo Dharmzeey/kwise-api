@@ -117,11 +117,11 @@ class UserCheckoutDetails(APIView):
             user_info_serializer = UserInfoSerializer(instance=user_info)
             user_address_serializer = UserAddressSerializer(instance=user_address)
             data = {
-                'name': f'{user_info_serializer.data['first_name']} {user_info_serializer.data['last_name']}',
-                'place': f'{user_address_serializer.data['city_town']}, {user_address_serializer.data['state_name']}',
-                'address': f'{user_address_serializer.data['address']}',
-                'phone_number': f'{user_serializer.data['phone_number']}',
-                'alternative_phone_number': f'{user_info_serializer.data['alternative_phone_number']}',
+                'name': f'{user_info_serializer.data["first_name"]} {user_info_serializer.data["last_name"]}',
+                'place': f'{user_address_serializer.data["city_town"]}, {user_address_serializer.data["state_name"]}',
+                'address': f'{user_address_serializer.data["address"]}',
+                'phone_number': f'{user_serializer.data["phone_number"]}',
+                'alternative_phone_number': f'{user_info_serializer.data["alternative_phone_number"]}',
             }
             data = {"message": "user checkout information", "data": data}
             return Response(data, status=status.HTTP_200_OK)

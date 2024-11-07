@@ -7,3 +7,5 @@ if get_os is None:
 # THIS WILL LOAD THE DEVELOPMENT SETTINGS IF THE SITE_STATUS KEY RETURNS A VALUE [(PROD) THAT IN SET ON THE WEB SERVER OS]
 elif get_os == "production":
   from .production import *
+  import pymysql
+  pymysql.install_as_MySQLdb()

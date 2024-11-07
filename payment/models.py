@@ -8,8 +8,8 @@ class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_payment')
     amount = models.PositiveIntegerField()
     email = models.EmailField()
-    access_code = models.CharField()
-    ref = models.CharField(max_length=200)
+    access_code = models.CharField(max_length=30)
+    ref = models.CharField(max_length=30)
     session_id = models.CharField(max_length=100) # this will be the id to the session db so as to later query the products and address
     session_data = models.TextField()
     verified = models.BooleanField(default=False)
