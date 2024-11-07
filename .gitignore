@@ -2,7 +2,7 @@ __pycache__
 *.sqlite3
 *.pyc
 .env
-develpoment.py
+development.py
 media
 migrations
 bruno/
