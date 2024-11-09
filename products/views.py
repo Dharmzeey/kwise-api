@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.core.exceptions import ValidationError
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from . import serializers as customSerializers
 from .models import Product, Category, Brand
@@ -57,7 +58,10 @@ class RecentlyViewedView(ListAPIView):
 	def get_queryset(self):
 		q_list = self.request.query_params.getlist("q_list[]")
 		if q_list:
-			qs = Product.objects.filter(uuid__in=q_list)
+			try:
+				qs = Product.objects.filter(uuid__in=q_list)
+			except ValidationError: 
+				qs = Product.objects.none()
 		else:
 			qs = Product.objects.none()
 		return qs
@@ -72,7 +76,7 @@ class SimilarProductsView(ListAPIView):
             try:
                 product = Product.objects.get(uuid=product_uuid)
                 similar_products = Product.objects.filter(brand=product.brand).order_by("?")[:7]
-            except Product.DoesNotExist:
+            except (Product.DoesNotExist, ValidationError):
                 similar_products = Product.objects.none()
         else:
             similar_products = Product.objects.none()
@@ -87,6 +91,6 @@ class ProductDetailView(RetrieveAPIView):
 		uuid = self.kwargs.get('pk')
 		try:
 			return Product.objects.get(uuid=uuid)
-		except Product.DoesNotExist:
+		except (Product.DoesNotExist, ValidationError):
 			raise Http404
 product_detail = ProductDetailView.as_view()

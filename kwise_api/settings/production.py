@@ -3,8 +3,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-DEBUG = os.getenv('DEBUG')
+DEBUG = False
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+ALLOWED_HOSTS = ["api.kwiseworld.com"]
+CORS_ALLOWED_ORIGINS = [
+  "kwiseworld.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",   
+]
 
 
 DATABASES = {
@@ -47,6 +54,10 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 # payment
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
