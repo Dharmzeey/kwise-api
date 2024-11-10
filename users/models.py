@@ -42,6 +42,7 @@ class PendingOrder(models.Model):
 	address = models.TextField()
 	# Product Info
 	product = models.ForeignKey(Product, on_delete=models.SET_NULL, related_name="product_pending_order", null=True)
+	price = models.IntegerField()
 	quantity = models.IntegerField()
 	product_name = models.CharField(max_length=200)
 	shipped = models.BooleanField(default=False)
@@ -49,14 +50,16 @@ class PendingOrder(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	def __str__(self):
 		return f"{self.user} - {self.product.name}"
-  
+	
 
 class CompletedOrder(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_completed_order")
 	product = models.ForeignKey(Product, on_delete=models.SET_NULL, related_name="product_completed_order", null=True)
+	price = models.IntegerField()
 	product_name = models.CharField(max_length=200)
 	quantity = models.IntegerField()
 	delivery_date = models.DateTimeField()
+	address = models.TextField()
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):

@@ -31,7 +31,7 @@ class Product(models.Model):
   uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
   category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
   brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True)
-  name = models.CharField(max_length=30)
+  name = models.CharField(max_length=225)
   description = models.TextField()
   price = models.IntegerField()
   image = models.ImageField(upload_to="products/%Y/%m")
@@ -40,6 +40,20 @@ class Product(models.Model):
   utilization_status = models.IntegerField(choices=UTILIZATION_STATUS_CHOICES)
   created_at = models.DateTimeField(auto_now_add=True)
   
-  
   def __str__(self):
     return self.name
+  
+
+class Deal(models.Model):
+  uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+  title = models.CharField(max_length=200)
+  details = models.TextField()
+  image = models.ImageField(upload_to="deals/%Y/%m")
+  link_to = models.URLField(max_length=500)
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    ordering = ["-created_at"]
+
+  def __str__(self):
+    return self.title

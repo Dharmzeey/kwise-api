@@ -2,7 +2,7 @@ from django.http import Http404
 from django.core.exceptions import ValidationError
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from . import serializers as customSerializers
-from .models import Product, Category, Brand
+from .models import Product, Category, Brand, Deal
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -94,3 +94,21 @@ class ProductDetailView(RetrieveAPIView):
 		except (Product.DoesNotExist, ValidationError):
 			raise Http404
 product_detail = ProductDetailView.as_view()
+
+
+class DealListView(ListAPIView):
+	serializer_class = customSerializers.DealSerializer
+	queryset = Deal.objects.all()
+deals = DealListView.as_view()
+
+
+class DealDetailView(RetrieveAPIView):
+	serializer_class = customSerializers.DealSerializer
+	queryset=Deal.objects.all()
+	def get_object(self):
+		uuid = self.kwargs.get('pk')
+		try:
+			return Deal.objects.get(uuid=uuid)
+		except (Deal.DoesNotExist, ValidationError):
+			raise Http404
+deal_detail = DealDetailView.as_view()

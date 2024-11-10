@@ -103,6 +103,7 @@ def process_order(reference, amount, user_email):
     for item_id, item_data in session_cart.items():
         # product
         product = Product.objects.get(uuid=item_id)
+        price=product.price
         quantity = item_data.get('quantity')
         product_name = product.name
         # address        
@@ -126,6 +127,7 @@ def process_order(reference, amount, user_email):
             address=address,
             # product info
             product=product,
+            price=price,
             quantity=quantity,
             product_name=product_name,
             estimated_delivery_date=timezone.now() + timedelta(days=2)

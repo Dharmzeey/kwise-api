@@ -11,6 +11,7 @@ urlpatterns = [
   path("category/<str:category_name>/", views.products_by_category, name="products_by_category"),
   path("recently-viewed/", views.recently_viewed, name="recently_viewed"),
   path("similar-products/", views.similar_products, name="similar_products"),
-  path("<str:pk>/", views.product_detail, name="product_detail"),
-  
+  path("deals/", views.deals, name="deals"),
+  path("deals/<str:pk>/", views.deal_detail, name="deal_detail"),
+  path("<str:pk>/", views.product_detail, name="product_detail"), 
 ]

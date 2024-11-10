@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Brand, Product
+from .models import Category, Brand, Product, Deal
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -38,6 +38,16 @@ class ProductSerializer(serializers.ModelSerializer):
   def get_utilizationStatus(self, obj):
     return obj.get_utilization_status_display()
   
+  # This below will take the uuid from the database and render it as ID (the DB has id as pk but uuid as the external exposed id for querying sake alone)
+  def get_id(self, obj):
+    return str(obj.uuid)
+
+
+class DealSerializer(serializers.ModelSerializer):
+  id = serializers.SerializerMethodField()
+  class Meta:
+    model = Deal
+    exclude = ["uuid",]
   # This below will take the uuid from the database and render it as ID (the DB has id as pk but uuid as the external exposed id for querying sake alone)
   def get_id(self, obj):
     return str(obj.uuid)
