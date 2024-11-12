@@ -15,6 +15,10 @@ product_categories = ProductCategoryView.as_view()
 
 
 class ProductBrandView(ListAPIView):
+  """ 
+  This list all the brands, of a particular category
+  E.g when phone is passed, it shows return Iphone, samsung etc
+  """
   serializer_class = customSerializers.BrandSerializer
   
   def get_queryset(self):
@@ -51,6 +55,16 @@ class ProductsByCategoryView(ListAPIView):
 		return Product.objects.filter(category__name__iexact=category_name)
 
 products_by_category = ProductsByCategoryView.as_view()
+
+
+class ProductByBrand(ListAPIView):
+	serializer_class = customSerializers.ProductSerializer
+
+	def get_queryset(self):
+		category_name = self.kwargs.get("category_name")
+		brand_name = self.kwargs.get("brand_name")
+		return Product.objects.filter(category__name__iexact=category_name, brand__name__iexact=brand_name)
+products_by_brand = ProductByBrand.as_view()
 
 
 class RecentlyViewedView(ListAPIView):

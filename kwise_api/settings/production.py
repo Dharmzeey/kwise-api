@@ -8,7 +8,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 ALLOWED_HOSTS = ["api.kwiseworld.com"]
 CORS_ALLOWED_ORIGINS = [
-  "kwiseworld.com",
+  "https://kwiseworld.com",
   "http://localhost:3000",
   "http://127.0.0.1:3000",   
 ]
