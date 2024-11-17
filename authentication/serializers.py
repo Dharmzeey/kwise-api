@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
     'required': 'Email Address cannot be empty',
     'invalid': 'Please enter a valid Email Address',
   })
-  phone_number = serializers.CharField(min_length=11, max_length=13, error_messages={
+  phone_number = serializers.CharField(min_length=11, max_length=11, error_messages={
     'required': 'Phone Number cannnot be empty',
     'invalid': 'Please enter a Phone Number',
   })

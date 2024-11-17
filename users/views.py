@@ -198,7 +198,7 @@ class FavoriteListCreateView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-create_favourite_list = FavoriteListCreateView.as_view()
+list_create_favourite = FavoriteListCreateView.as_view()
 
 
 class FavoriteDeleteView(DestroyAPIView):
@@ -215,5 +215,5 @@ class FavoriteDeleteView(DestroyAPIView):
         if favorite:
             favorite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "Favorite not found."}, status=status.HTTP_404_NOT_FOUND)
-delete_favourite_list = FavoriteDeleteView.as_view()
+        return Response({"detail": "Favorite not found"}, status=status.HTTP_404_NOT_FOUND)
+delete_favourite = FavoriteDeleteView.as_view()

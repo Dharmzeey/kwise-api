@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Brand, Product, Deal
+from users.models import Favorite
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,7 +22,9 @@ class ProductSerializer(serializers.ModelSerializer):
   availabilityStatus = serializers.SerializerMethodField()
   utilizationStatus = serializers.SerializerMethodField()
   id = serializers.SerializerMethodField()
-    
+  user_wishlist = serializers.SerializerMethodField()
+
+
   class Meta:
     model = Product
     exclude = ["uuid", "utilization_status", "availability_status"]
@@ -41,6 +44,12 @@ class ProductSerializer(serializers.ModelSerializer):
   # This below will take the uuid from the database and render it as ID (the DB has id as pk but uuid as the external exposed id for querying sake alone)
   def get_id(self, obj):
     return str(obj.uuid)
+  
+  def get_user_wishlist(self, obj):
+    user = self.context.get('request').user      
+    if user.is_authenticated:
+      return Favorite.objects.filter(user=user, product=obj).exists()
+    return False
 
 
 class DealSerializer(serializers.ModelSerializer):
