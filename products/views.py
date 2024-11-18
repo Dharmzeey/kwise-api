@@ -5,6 +5,9 @@ from . import serializers as customSerializers
 from .models import Product, Category, Brand, Deal
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+
+from utilities.custom_authentication import CustomJWTAuthentication
 
 
 class ProductCategoryView(ListAPIView):
@@ -100,6 +103,8 @@ similar_products = SimilarProductsView.as_view()
 
 class ProductDetailView(RetrieveAPIView):
 	queryset=Product.objects.all()
+	permission_classes = [AllowAny]
+	authentication_classes = [CustomJWTAuthentication]
 	serializer_class = customSerializers.ProductSerializer
 	def get_object(self):
 		uuid = self.kwargs.get('pk')
