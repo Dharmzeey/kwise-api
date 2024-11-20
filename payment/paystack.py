@@ -43,7 +43,8 @@ class Paystack:
         response_data = response.json()
         if response.status_code == 200 and response_data['data']['status'] == 'success':            
             return response_data['status'], response_data['data']
-        log_error(f'paystack verify payment status code {response.status_code} \n with response -- {response.json()}')
+        else:
+            log_error(f'paystack verify payment status code {response.status_code} \n with response -- {response.json()}')
 
         response_data = response.json()
 
