@@ -2,6 +2,7 @@ from django.conf import settings
 
 from products.serializers import ProductSerializer
 from products.models import Product
+from base.models import LGA
 
 
 class Cart:
@@ -91,7 +92,6 @@ class Cart:
 
     def get_total_price(self):
         return sum(item["price"] * item["quantity"] for item in self.cart.values())
-    
 
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
@@ -108,9 +108,12 @@ class Cart:
                 "lga" : user_address.lga.id,
                 "prominent_motor_park" : user_address.prominent_motor_park,
                 "landmark_signatory_place" : user_address.landmark_signatory_place,
-                "address" : user_address.address
-             } 
+                "address" : user_address.address,
+            }
+            # Delivery Fee 
+             delivery_fee=  user_address.lga.delivery_fee
         else:
+            lga = LGA.objects.get(id=serializer["lga"])
             address_data = {
                 "name" : serializer["name"],
                 "phone_number" : serializer["phone_number"],
@@ -121,6 +124,9 @@ class Cart:
                 "landmark_signatory_place" : serializer.get("landmark_signatory_place", None),
                 "address" : serializer["address"],
             }           
+            # Delivery Fee
+            delivery_fee = lga.delivery_fee
         self.address['address_info'] = address_data
+        self.address['delivery_fee'] = delivery_fee
         self.save()
         return address_data

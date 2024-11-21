@@ -42,8 +42,6 @@ class ModifyCartView(APIView):
         action = request.data.get("action")
         cart = Cart(request)
         action_status = False
-        print(action)
-        print(product_uuid)
         
         # action status is either Trur or false returned by the service.py when an action succeeds or not
         if action == "increament":
@@ -122,6 +120,8 @@ class UserCheckoutDetails(APIView):
                 'address': f'{user_address_serializer.data["address"]}',
                 'phone_number': f'{user_serializer.data["phone_number"]}',
                 'alternative_phone_number': f'{user_info_serializer.data["alternative_phone_number"]}',
+                'delivery_fee': str(user_address.lga.delivery_fee),
+                'delivery_days': str(user_address.lga.delivery_days)
             }
             data = {"message": "user checkout information", "data": data}
             return Response(data, status=status.HTTP_200_OK)
@@ -180,5 +180,6 @@ class OrderSummary(APIView):
         data = {
             "error": render_errors(serializer.errors)
         }
+        print(serializer.errors)
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 order_summary = OrderSummary.as_view()

@@ -13,6 +13,8 @@ class State(models.Model):
 class LGA(models.Model):
   state = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, related_name="state_lga")
   name = models.CharField(max_length=50)  
+  delivery_fee = models.IntegerField()
+  delivery_days = models.IntegerField()
   def __str__(self):
     return self.name
   

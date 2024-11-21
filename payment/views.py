@@ -43,7 +43,9 @@ class InitiatePayment(APIView):
             """
             data = {"error": "No item in cart"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
-        payment_init = payment.initialize_payment(email=request.user.email, amount=cart.get_total_price())
+        print(cart.address.get('delivery_fee'))
+        delivery_fee = cart.address['delivery_fee']    
+        payment_init = payment.initialize_payment(email=request.user.email, amount=cart.get_total_price() + delivery_fee)
         # access code is returned to FE to resume and continue tnx
         if payment_init[0] == 200: # if the first item in the tuple which is the status code
             payment = Payment.objects.create(user=request.user, amount=cart.get_total_price(), email=request.user.email, access_code=payment_init[1], ref=payment_init[2], session_id=request.session.session_key, session_data=encoded_session_data)
@@ -115,6 +117,7 @@ def process_order(reference, amount, user_email):
         prominent_motor_park = session_address['address_info'].get('prominent_motor_park')
         landmark_signatory_place = session_address['address_info'].get('landmark_signatory_place')
         address = session_address['address_info'].get('address')
+        delivery_days = lga.delivery_days
         order = PendingOrder.objects.create(
             user=user,
             name=name,
@@ -130,7 +133,7 @@ def process_order(reference, amount, user_email):
             price=price,
             quantity=quantity,
             product_name=product_name,
-            estimated_delivery_date=timezone.now() + timedelta(days=2)
+            estimated_delivery_date=timezone.now() + timedelta(days=delivery_days)
         )
         order.save()
          # Remove cart data from the session current and save it
