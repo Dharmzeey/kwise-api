@@ -43,12 +43,11 @@ class InitiatePayment(APIView):
             """
             data = {"error": "No item in cart"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
-        print(cart.address.get('delivery_fee'))
         delivery_fee = cart.address['delivery_fee']    
         payment_init = payment.initialize_payment(email=request.user.email, amount=cart.get_total_price() + delivery_fee)
         # access code is returned to FE to resume and continue tnx
         if payment_init[0] == 200: # if the first item in the tuple which is the status code
-            payment = Payment.objects.create(user=request.user, amount=cart.get_total_price(), email=request.user.email, access_code=payment_init[1], ref=payment_init[2], session_id=request.session.session_key, session_data=encoded_session_data)
+            payment = Payment.objects.create(user=request.user, amount=cart.get_total_price() + delivery_fee, email=request.user.email, access_code=payment_init[1], ref=payment_init[2], session_id=request.session.session_key, session_data=encoded_session_data)
             payment.save()
             data = {"access_code": payment_init[1]}
             # access code is returned to FE to resume and continue tnx
@@ -145,15 +144,3 @@ def process_order(reference, amount, user_email):
         session_obj.save()  # Save the session
 
     # after the order is being processed, cart and address are removed from the session and the quantity of product is decreased by number purchased
-class VerifyPayment(APIView):
-    permission_classes = [IsAuthenticated, IsUserVerified]
-    def get(self, request, ref):
-        # this will be async called when the paystack finishes
-        payment = Payment.objects.get(ref=ref)
-        verified = payment.verify_payment()
-
-        if verified:
-            # fetch the current session and then establish the orders for all product #pending order gets created here
-            return render(request, "success.html")
-        return render(request, "success.html")
-verify_payment = VerifyPayment.as_view()

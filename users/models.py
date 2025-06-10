@@ -51,6 +51,8 @@ class PendingOrder(models.Model):
 	def __str__(self):
 		return f"{self.user} - {self.product.name}"
 	
+	class Meta:
+		ordering = ['-created_at']
 
 class CompletedOrder(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_completed_order")
@@ -65,7 +67,8 @@ class CompletedOrder(models.Model):
 	def __str__(self):
 		return f"{self.user} - {self.product_name}"
 
-
+	class Meta:
+		ordering = ['-created_at']
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
