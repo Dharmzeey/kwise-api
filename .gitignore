@@ -4,12 +4,11 @@ __pycache__
 .env
 development.py
 media
-migrations
 bruno/
 todo.md
-load_products.py
-products.csv
-utilities/images
+# load_products.py
+# products.csv
+# utilities/images
 payment/pay.html
 ngrok.exe
 error.log
