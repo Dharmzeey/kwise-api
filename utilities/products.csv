@@ -49,53 +49,53 @@ Laptops,HP,Test product - XPS 13,A high-performance laptop with top-notch featur
 Phones,Apple,Test product - iPhone 12,Samsung's flagship phone with a stunning display.,1040286,13,0,0
 Phones,Samsung,Test product - iPhone 13 Pro,The latest iPhone with state-of-the-art features.,858690,43,0,0
 Phones,Samsung,Test product - Samsung Galaxy S25 Ultra,The latest iPhone with state-of-the-art features.,286204,94,0,1
-Laptops,Dell,XPS 13,A high-performance laptop with top-notch features.,165723,30,1,1
+Laptops,Dell,Test product - XPS 13,A high-performance laptop with top-notch features.,165723,30,1,1
 Laptops,Dell,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,736455,36,1,0
-Laptops,Apple,XPS 13,A high-performance laptop with top-notch features.,1564857,36,1,1
-Phones,Samsung,Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,845388,78,1,0
-Accessories,Samsung,Anker PowerCore 20000,A reliable charger with fast charging support.,1220703,96,1,0
-Accessories,Anker,Anker PowerCore 20000,A high-capacity power bank for all your devices.,519431,60,1,0
-Laptops,Dell,EliteBook 840,A high-performance laptop with top-notch features.,1444195,15,0,1
-Laptops,HP,XPS 13,A high-performance laptop with top-notch features.,1531299,100,0,0
-Laptops,Dell,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1879473,12,1,0
-Laptops,Dell,XPS 13,Dell's premium ultrabook with excellent battery life.,1541384,91,0,1
-Accessories,Samsung,Anker PowerCore 20000,A high-capacity power bank for all your devices.,879918,38,0,0
-Laptops,HP,MacBook Pro 2023,Apple's latest MacBook Pro with advanced M2 chip.,369168,12,1,0
-Laptops,Apple,XPS 13,Dell's premium ultrabook with excellent battery life.,322011,81,0,1
-Accessories,Samsung,Samsung Charger,A high-capacity power bank for all your devices.,1521026,84,1,0
-Accessories,Anker,Anker PowerCore 20000,A reliable charger with fast charging support.,258081,27,1,1
-Phones,Samsung,iPhone 14 Pro,The latest iPhone with state-of-the-art features.,101365,63,1,1
-Phones,Apple,Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,1239092,44,1,0
-Accessories,Anker,Samsung Charger,A high-capacity power bank for all your devices.,1758937,30,0,0
-Phones,Samsung,Samsung Galaxy S24 Ultra,The latest iPhone with state-of-the-art features.,539017,71,0,1
-Laptops,Apple,EliteBook 840,A high-performance laptop with top-notch features.,1202814,91,1,0
-Phones,Apple,Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,1940010,51,1,1
-Phones,Apple,iPhone 14 Pro,Samsung's flagship phone with a stunning display.,610267,61,0,1
-Accessories,Anker,Anker PowerCore 20000,A reliable charger with fast charging support.,142881,92,1,0
-Accessories,Samsung,Anker PowerCore 20000,A high-capacity power bank for all your devices.,1308297,70,0,1
-Laptops,Apple,XPS 13,Dell's premium ultrabook with excellent battery life.,742429,70,0,0
-Console,Sony,PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1837177,58,0,1
-Phones,Samsung,iPhone 14 Pro,The latest iPhone with state-of-the-art features.,362504,47,0,1
-Laptops,Apple,MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,773113,95,1,1
-Laptops,Apple,MacBook Pro 2023,A high-performance laptop with top-notch features.,640980,79,0,0
-Laptops,Dell,MacBook Pro 2023,Apple's latest MacBook Pro with advanced M2 chip.,565630,62,0,1
-Laptops,HP,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,215325,30,1,1
-Laptops,Apple,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1500129,33,0,1
-Laptops,Dell,MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,1062165,13,1,1
-Accessories,Anker,Samsung Charger,A reliable charger with fast charging support.,840119,65,0,0
-Console,Sony,PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1624290,89,1,0
-Phones,Samsung,iPhone 14 Pro,Samsung's flagship phone with a stunning display.,452628,41,1,0
-Phones,Samsung,iPhone 14 Pro,The latest iPhone with state-of-the-art features.,537053,10,1,0
-Laptops,HP,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,622523,54,1,0
-Phones,Apple,Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,409713,34,0,1
-Console,Sony,PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1966046,46,1,0
-Accessories,Samsung,Samsung Charger,A high-capacity power bank for all your devices.,862408,33,0,0
-Accessories,Samsung,Samsung Charger,A high-capacity power bank for all your devices.,311941,99,0,1
-Accessories,Anker,Samsung Charger,A reliable charger with fast charging support.,1105470,86,0,0
-Laptops,Dell,XPS 13,Apple's latest MacBook Pro with advanced M2 chip.,704008,92,0,0
-Laptops,HP,MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,620697,98,1,0
-Laptops,Dell,XPS 13,Dell's premium ultrabook with excellent battery life.,631316,60,1,1
-Laptops,HP,EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1163835,45,1,1
-Console,Sony,PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1764444,18,0,0
-Console,Sony,PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1159314,24,0,0
-Laptops,HP,XPS 13,A high-performance laptop with top-notch features.,257896,93,0,1
+Laptops,Apple,Test product - XPS 13,A high-performance laptop with top-notch features.,1564857,36,1,1
+Phones,Samsung,Test product - Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,845388,78,1,0
+Accessories,Samsung,Test product - Anker PowerCore 20000,A reliable charger with fast charging support.,1220703,96,1,0
+Accessories,Anker,Test product - Anker PowerCore 20000,A high-capacity power bank for all your devices.,519431,60,1,0
+Laptops,Dell,Test product - EliteBook 840,A high-performance laptop with top-notch features.,1444195,15,0,1
+Laptops,HP,Test product - XPS 13,A high-performance laptop with top-notch features.,1531299,100,0,0
+Laptops,Dell,Test product - EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1879473,12,1,0
+Laptops,Dell,Test product - XPS 13,Dell's premium ultrabook with excellent battery life.,1541384,91,0,1
+Accessories,Samsung,Test product - Anker PowerCore 20000,A high-capacity power bank for all your devices.,879918,38,0,0
+Laptops,HP,Test product - MacBook Pro 2023,Apple's latest MacBook Pro with advanced M2 chip.,369168,12,1,0
+Laptops,Apple,Test product - XPS 13,Dell's premium ultrabook with excellent battery life.,322011,81,0,1
+Accessories,Samsung,Test product - Samsung Charger,A high-capacity power bank for all your devices.,1521026,84,1,0
+Accessories,Anker,Test product - Anker PowerCore 20000,A reliable charger with fast charging support.,258081,27,1,1
+Phones,Samsung,Test product - iPhone 14 Pro,The latest iPhone with state-of-the-art features.,101365,63,1,1
+Phones,Apple,Test product - Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,1239092,44,1,0
+Accessories,Anker,Test product - Samsung Charger,A high-capacity power bank for all your devices.,1758937,30,0,0
+Phones,Samsung,Test product - Samsung Galaxy S24 Ultra,The latest iPhone with state-of-the-art features.,539017,71,0,1
+Laptops,Apple,Test product - EliteBook 840,A high-performance laptop with top-notch features.,1202814,91,1,0
+Phones,Apple,Test product - Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,1940010,51,1,1
+Phones,Apple,Test product - iPhone 14 Pro,Samsung's flagship phone with a stunning display.,610267,61,0,1
+Accessories,Anker,Test product - Anker PowerCore 20000,A reliable charger with fast charging support.,142881,92,1,0
+Accessories,Samsung,Test product - Anker PowerCore 20000,A high-capacity power bank for all your devices.,1308297,70,0,1
+Laptops,Apple,Test product - XPS 13,Dell's premium ultrabook with excellent battery life.,742429,70,0,0
+Console,Sony,Test product - PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1837177,58,0,1
+Phones,Samsung,Test product - iPhone 14 Pro,The latest iPhone with state-of-the-art features.,362504,47,0,1
+Laptops,Apple,Test product - MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,773113,95,1,1
+Laptops,Apple,Test product - MacBook Pro 2023,A high-performance laptop with top-notch features.,640980,79,0,0
+Laptops,Dell,Test product - MacBook Pro 2023,Apple's latest MacBook Pro with advanced M2 chip.,565630,62,0,1
+Laptops,HP,Test product - EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,215325,30,1,1
+Laptops,Apple,Test product - EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1500129,33,0,1
+Laptops,Dell,Test product - MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,1062165,13,1,1
+Accessories,Anker,Test product - Samsung Charger,A reliable charger with fast charging support.,840119,65,0,0
+Console,Sony,Test product - PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1624290,89,1,0
+Phones,Samsung,Test product - iPhone 14 Pro,Samsung's flagship phone with a stunning display.,452628,41,1,0
+Phones,Samsung,Test product - iPhone 14 Pro,The latest iPhone with state-of-the-art features.,537053,10,1,0
+Laptops,HP,Test product - EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,622523,54,1,0
+Phones,Apple,Test product - Samsung Galaxy S24 Ultra,Samsung's flagship phone with a stunning display.,409713,34,0,1
+Console,Sony,Test product - PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1966046,46,1,0
+Accessories,Samsung,Test product - Samsung Charger,A high-capacity power bank for all your devices.,862408,33,0,0
+Accessories,Samsung,Test product - Samsung Charger,A high-capacity power bank for all your devices.,311941,99,0,1
+Accessories,Anker,Test product - Samsung Charger,A reliable charger with fast charging support.,1105470,86,0,0
+Laptops,Dell,Test product - XPS 13,Apple's latest MacBook Pro with advanced M2 chip.,704008,92,0,0
+Laptops,HP,Test product - MacBook Pro 2023,Dell's premium ultrabook with excellent battery life.,620697,98,1,0
+Laptops,Dell,Test product - XPS 13,Dell's premium ultrabook with excellent battery life.,631316,60,1,1
+Laptops,HP,Test product - EliteBook 840,Apple's latest MacBook Pro with advanced M2 chip.,1163835,45,1,1
+Console,Sony,Test product - PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1764444,18,0,0
+Console,Sony,Test product - PlayStation 5,The latest PlayStation 5 with ultra-fast SSD.,1159314,24,0,0
+Laptops,HP,Test product - XPS 13,A high-performance laptop with top-notch features.,257896,93,0,1

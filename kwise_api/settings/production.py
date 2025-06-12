@@ -3,25 +3,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-ALLOWED_HOSTS = ["api.kwiseworld.com"]
-CORS_ALLOWED_ORIGINS = [
-  "https://kwiseworld.com",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",   
-]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+
+CSRF_TRUSTED_ORIGINS = ['https://kwise.dharmzeey.com']
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.mysql',
+    'ENGINE': 'django.db.backends.postgresql',
     'NAME': os.getenv('DB_NAME'),
     'USER': os.getenv('DB_USER'),
     'PASSWORD': os.getenv('DB_PASSWORD'),
     'HOST': os.getenv('DB_HOST'),
-    'PORT': '',
+    'PORT': os.getenv('DB_PORT'),
   }
 }
 
@@ -56,8 +54,8 @@ PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = '/var/www/html/staticfiles'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/var/www/html/mediafiles'
