@@ -1,64 +1,58 @@
 # Stage 1: Base build stage
 FROM python:3.13-slim AS builder
-
-# Install system dependencies needed to build psycopg2
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libpq-dev gcc && \
-    rm -rf /var/lib/apt/lists/*
-
+ 
 # Create the app directory
 RUN mkdir /app
-
+ 
 # Set the working directory
 WORKDIR /app
-
+ 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
-
-# Upgrade pip and install dependencies
+ 
+# Install dependencies first for caching benefit
 RUN pip install --upgrade pip 
 COPY requirements.txt /app/ 
 RUN pip install --no-cache-dir -r requirements.txt
  
 # Stage 2: Production stage
 FROM python:3.13-slim
-
-# Install runtime dependencies only if needed (e.g., libpq5 for psycopg2 binary compatibility)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libpq5 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create non-root user and app directories
+ 
 RUN useradd -m -r appuser && \
-    mkdir -p /app && \
-    mkdir -p /var/www/html/staticfiles && \
-    mkdir -p /var/www/html/mediafiles && \
-    chown -R appuser /app && \
-    chown -R appuser /var/www/html
+   mkdir /app && \
+   chown -R appuser /app
 
-# Copy dependencies from builder
+# create static and media files and set only user and not group to appuser
+RUN mkdir -p /var/www/html/staticfiles && \
+   mkdir /var/www/html/mediafiles && \
+   chown -R appuser /var/www/html/staticfiles && \
+   chown -R appuser /var/www/html/mediafiles
+ 
+ 
+# Copy the Python dependencies from the builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
-
-# Set working directory
+ 
+# Set the working directory
 WORKDIR /app
-
-# Copy application code with ownership
+ 
+# Copy application code
 COPY --chown=appuser:appuser . .
-
-# Optimize Python
+ 
+# Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
-
+ 
 # Switch to non-root user
 USER appuser
-
-# Expose port
+ 
+# Expose the application port
 EXPOSE 8000 
 
-# Make entrypoint executable
+# Make entry file executable
 RUN chmod +x /app/entrypoint.prod.sh
-
-# Start app
+ 
+# Start the application using Gunicorn
 CMD ["/app/entrypoint.prod.sh"]
+# CMD ["gunicorn", "--bind", "0.0.0:8000", "family_tree.wsgi:application"]
