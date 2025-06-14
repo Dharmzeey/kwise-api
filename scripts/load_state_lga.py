@@ -11,6 +11,6 @@ def run():
   for row in reader:
     state, created = State.objects.get_or_create(name=row[2])
     
-    lga, created = LGA.objects.get_or_create(name=row[1], state=state)
+    lga, created = LGA.objects.get_or_create(name=row[1], state=state, delivery_days=row[3], delivery_fee=row[4])
     
   

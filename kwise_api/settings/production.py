@@ -8,7 +8,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+# CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+
+CORS_ALLOWED_ORIGINS = ['https://kwise.dharmzeey.com']
 
 CSRF_TRUSTED_ORIGINS = ['https://kwise.dharmzeey.com']
 
@@ -55,7 +57,7 @@ PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/var/www/html/staticfiles'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = '/var/www/html/mediafiles'
