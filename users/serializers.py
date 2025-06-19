@@ -26,9 +26,14 @@ class UserAddressSerializer(serializers.ModelSerializer):
       }
     # the names are included because of when the user details is sent just for viewing, it originally shows the id, and id is very needed for creation and editing, so hence the initially field and the field_name
     def get_state_name(self, obj):
-        return obj.state.name
+        if obj.state:
+            return obj.state.name
+        return None
+
     def get_lga_name(self, obj):
-        return obj.lga.name
+        if obj.lga:
+            return obj.lga.name
+        return None
     
 
 class PendingOrderSerializer(serializers.ModelSerializer):
